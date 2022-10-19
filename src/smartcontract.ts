@@ -1,6 +1,5 @@
 import { ethers } from "ethers";
 import { abiFile as hardhatAbiFile } from "./utils/hardhat";
-import { DeployOptions } from "./deploy-options"
 import { BundleOptions } from "./bundle-options"
 import { verify_env } from "./env";
 import { Topic } from "./sdk/topic";
