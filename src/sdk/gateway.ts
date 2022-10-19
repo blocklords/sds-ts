@@ -21,7 +21,7 @@ export let request = async function(msg: MsgRequest): Promise<MsgReply> {
     }
 
     try {
-    await socket.send(msg.toString());
+       await socket.send(msg.toString());
     } catch (err) {
         return MsgReply.fail("Failed to send message to SDS Gateway: "+ err.toString(), {});
     }
