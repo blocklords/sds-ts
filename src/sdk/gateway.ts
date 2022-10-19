@@ -1,9 +1,9 @@
-import { Request } from "zeromq";
+import * as zmq from "zeromq";
 import { Request as MsgRequest } from "./message/request";
 import { Reply as MsgReply } from "./message/reply";
 
-let init = async () : Request => {
-    let socket = new Request();
+let init = async () : Promise<zmq.Request> => {
+    let socket = new zmq.Request();
 
     let host = process.env.SDS_GATEWAY_HOST!
 
@@ -13,7 +13,7 @@ let init = async () : Request => {
 }
 
 export let request = async function(msg: MsgRequest): Promise<MsgReply> {
-    let socket: Request;
+    let socket: zmq.Request;
     try {
         socket = await init();
     } catch (err) {

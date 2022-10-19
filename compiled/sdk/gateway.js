@@ -37,14 +37,14 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 exports.request = void 0;
-var zeromq_1 = require("zeromq");
+var zmq = require("zeromq");
 var reply_1 = require("./message/reply");
-var init = function () { return __awaiter(void 0, void 0, zeromq_1.Request, function () {
+var init = function () { return __awaiter(void 0, void 0, void 0, function () {
     var socket, host;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                socket = new zeromq_1.Request();
+                socket = new zmq.Request();
                 host = process.env.SDS_GATEWAY_HOST;
                 return [4 /*yield*/, socket.connect("tcp://" + host)];
             case 1:
