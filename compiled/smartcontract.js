@@ -52,7 +52,7 @@ var Smartcontract = /** @class */ (function () {
     /**
      * @description Deploy smartcontract using hardhat framework and at the same time register it on SDS.
      */
-    Smartcontract.prototype.deployInHardhat = function (deployer, contract, constructorArguments, options) {
+    Smartcontract.prototype.deployInHardhat = function (deployer, contract, constructorArguments) {
         return __awaiter(this, void 0, void 0, function () {
             var _a, abi, deployed, address, txid, topic_string, message, reply;
             var _b;
@@ -93,6 +93,51 @@ var Smartcontract = /** @class */ (function () {
                         return [4 /*yield*/, (0, gateway_1.request)(message)];
                     case 5:
                         reply = _c.sent();
+                        if (!reply.is_ok()) {
+                            console.error("error: couldn't request data from SDS Gateway: " + reply.message);
+                        }
+                        console.log("'".concat(topic_string, "' was registered in SDS Gateway!"));
+                        console.log(reply);
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Register already deployed smartcontract in SDS.
+     * @param network_id NetworkID where contract is deployed
+     * @param address Smartcontract address
+     * @param txid contract creation transaction hash
+     * @param abi ABI directly compatible with JSON encoding
+     */
+    Smartcontract.prototype.registerInHardhat = function (deployer, address, txid) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _a, abi, topic_string, message, reply;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _a = this.topic;
+                        return [4 /*yield*/, deployer.getChainId()];
+                    case 1:
+                        _a.network_id = (_b.sent()).toString();
+                        console.log("'".concat(this.topic.name, "' address ").concat(address));
+                        console.log("'".concat(this.topic.name, "' txid    ").concat(txid));
+                        return [4 /*yield*/, (0, hardhat_1.abiFile)(this.topic.name)];
+                    case 2:
+                        abi = _b.sent();
+                        if (abi === false) {
+                            throw "error: can not find a smartcontract ABI. Make sure that smartcontrat name in .sol file is ".concat(this.topic.name);
+                        }
+                        topic_string = this.topic.toString(topic_1.Topic.LEVEL_NAME);
+                        message = new request_1.Request('smartcontract_register', {
+                            topic_string: topic_string,
+                            txid: txid,
+                            abi: abi
+                        });
+                        console.log("Sending 'register_smartcontract' command to SDS Gateway");
+                        return [4 /*yield*/, (0, gateway_1.request)(message)];
+                    case 3:
+                        reply = _b.sent();
                         if (!reply.is_ok()) {
                             console.error("error: couldn't request data from SDS Gateway: " + reply.message);
                         }
