@@ -13,14 +13,9 @@ export class Smartcontract {
     this.group = group;
   }
 
-  /*let Token               = await ethers.getContractFactory("Token");
-    let deployer            = await ethers.getSigner();
-    let smartcontract       = new Smartcontract({name: 'my-sample-token', group: 'erc20'});
-
-    // The last two parameters are constructor arguments.
-    await smartcontract.deployInHardhat(deployer, Token, deployer.address, 1).catch(console.error);
-  */
-
+  /** 
+   * @description Deploy smartcontract using hardhat framework and at the same time register it on SDS.
+   */
   async deployInHardhat(deployer: ethers.Signer, contract: ethers.ContractFactory, constructorArguments: Array<any>, options: DeployOptions) {
     let abi = await hardhatAbiFile(this.name);
     if (abi === false) {
