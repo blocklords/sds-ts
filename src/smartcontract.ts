@@ -27,7 +27,7 @@ export class Smartcontract {
 
     let abi = await hardhatAbiFile(this.topic.name);
     if (abi === false) {
-      throw `error: can not find a smartcontract ABI. Make sure that smartcontrat name in .sol file is ${this.name}`;
+      throw `error: can not find a smartcontract ABI. Make sure that smartcontrat name in .sol file is ${this.topic.name}`;
     }
 
     let deployed = await contract.connect(deployer).deploy(...constructorArguments);    /// Argument '1' means deploy in Test mode
