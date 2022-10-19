@@ -22,7 +22,7 @@ export class Smartcontract {
   /** 
    * @description Deploy smartcontract using hardhat framework and at the same time register it on SDS.
    */
-  async deployInHardhat(deployer: ethers.Signer, contract: ethers.ContractFactory, constructorArguments: Array<any>, options: DeployOptions) {
+  async deployInHardhat(deployer: ethers.Signer, contract: ethers.ContractFactory, constructorArguments: Array<any>) {
     this.topic.network_id = (await deployer.getChainId()).toString();
 
     let abi = await hardhatAbiFile(this.topic.name);
