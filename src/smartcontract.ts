@@ -61,6 +61,37 @@ export class Smartcontract {
     console.log(reply);
   }
 
+  /**
+   * Register already deployed smartcontract in SDS.
+   * @param network_id NetworkID where contract is deployed
+   * @param address Smartcontract address
+   * @param txid contract creation transaction hash
+   * @param abi ABI directly compatible with JSON encoding
+   */
+  async register(network_id: string, address: string, txid: string, abi: any) {
+    this.topic.network_id = network_id;
+
+    console.log(`'${this.topic.name}' address ${address}`);
+    console.log(`'${this.topic.name}' txid    ${txid}`);
+
+    let topic_string = this.topic.toString(Topic.LEVEL_NAME);
+    let message = new MsgRequest('smartcontract_register', {
+      topic_string: topic_string,
+      txid: txid,
+      abi: abi,
+    });
+
+    console.log(`Sending 'register_smartcontract' command to SDS Gateway`);
+    
+    let reply = await request(message);
+    if (!reply.is_ok()) {
+      console.error(`error: couldn't request data from SDS Gateway: `+reply.message);
+    }
+
+    console.log(`'${topic_string}' was registered in SDS Gateway!`)
+    console.log(reply);
+  }
+
   async enableBundling(smartcontractDeveloper: ethers.Signer, signerAddress: string, method: string, options: BundleOptions) {
     this.topic.network_id = (await smartcontractDeveloper.getChainId()).toString();
     this.topic.method = method;
