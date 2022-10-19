@@ -68,11 +68,16 @@ export class Smartcontract {
    * @param txid contract creation transaction hash
    * @param abi ABI directly compatible with JSON encoding
    */
-  async register(network_id: string, address: string, txid: string, abi: any) {
-    this.topic.network_id = network_id;
+  async registerInHardhat(deployer: ethers.Signer, address: string, txid: string) {
+    this.topic.network_id = (await deployer.getChainId()).toString();
 
     console.log(`'${this.topic.name}' address ${address}`);
     console.log(`'${this.topic.name}' txid    ${txid}`);
+
+    let abi = await hardhatAbiFile(this.topic.name);
+    if (abi === false) {
+      throw `error: can not find a smartcontract ABI. Make sure that smartcontrat name in .sol file is ${this.topic.name}`;
+    }
 
     let topic_string = this.topic.toString(Topic.LEVEL_NAME);
     let message = new MsgRequest('smartcontract_register', {
