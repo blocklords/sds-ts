@@ -24,7 +24,7 @@ The library requires environment variables:
 ```sh
 SDS_ORGANIZATION_NAME=
 SDS_PROJECT_NAME=
-SDS_GATEWAY=localhost:3500
+SDS_GATEWAY_HOST=localhost:3500
 ```
 
 ## Features
