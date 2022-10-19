@@ -2,118 +2,86 @@ import { ethers } from "ethers";
 import { abiFile as hardhatAbiFile } from "./utils/hardhat";
 import { DeployOptions } from "./deploy-options"
 import { BundleOptions } from "./bundle-options"
-const axios = require('axios').default;
+import { verify_env } from "./env";
+import { Topic } from "./sdk/topic";
+import { Request as MsgRequest } from "./sdk/message/request";
+import { request } from "./sdk/gateway";
 
 export class Smartcontract {
-  name: string;
-  group: string;
+  topic: Topic;
   
-  constructor(name: string, group: string) {
-    this.name = name;
-    this.group = group;
+  constructor(group: string, name: string) {
+    verify_env();
+
+    let organization = process.env.SDS_ORGANIZATION_NAME;
+    let project = process.env.SDS_PROJECT_NAME;
+
+    this.topic = new Topic(organization, project, '', group, name);
   }
 
   /** 
    * @description Deploy smartcontract using hardhat framework and at the same time register it on SDS.
    */
   async deployInHardhat(deployer: ethers.Signer, contract: ethers.ContractFactory, constructorArguments: Array<any>, options: DeployOptions) {
-    let abi = await hardhatAbiFile(this.name);
+    this.topic.network_id = (await deployer.getChainId()).toString();
+
+    let abi = await hardhatAbiFile(this.topic.name);
     if (abi === false) {
-      throw 'SMARTCONTRACT_NAME_INVALID: can not find a smartcontract ABI. Make sure that Smartcontract name matches in the source code as well';
+      throw `error: can not find a smartcontract ABI. Make sure that smartcontrat name in .sol file is ${this.name}`;
     }
 
-    if (!process.env.SDS_ORGANIZATION_NAME) {
-      throw 'Missing SDS_ORGANIZATION_NAME environment variable';
-    }
-    if (!process.env.SDS_PROJECT_NAME) {
-      throw 'Missing SDS_PROJECT_NAME environment variable';
-    }
-
-    let deployed           = await contract.connect(deployer).deploy(...constructorArguments);    /// Argument '1' means deploy in Test mode
+    let deployed = await contract.connect(deployer).deploy(...constructorArguments);    /// Argument '1' means deploy in Test mode
     console.log(`Smartcontract is deploying... Please wait...`);
 
     // waiting for transaction confirmation...
     await deployed.deployed();
-    console.log(`'${this.name}' smartcontract was deployed on ${deployed.address}!`);
-    console.log(`Txhash: ${deployed.deployTransaction.hash}`);
+
+    console.log(`${this.topic.name} deployed successfully!`);
 
     let address = deployed.address;
     let txid = deployed.deployTransaction.hash;
+    console.log(`'${this.topic.name}' address ${address}`);
+    console.log(`'${this.topic.name}' txid    ${txid}`);
 
-    let network_id = await deployer.getChainId();
-    let smartcontract_developer = await deployer.getAddress();
-
-    let topic_string = `${process.env.SDS_ORGANIZATION_NAME}.${process.env.SDS_PROJECT_NAME}.${network_id}.${this.group}.${this.name}`;
-
-    let register = {
+    let topic_string = this.topic.toString(Topic.LEVEL_NAME);
+    let message = new MsgRequest('smartcontract_register', {
       topic_string: topic_string,
-      address: address,
-      smartcontract_developer: smartcontract_developer,
       txid: txid,
       abi: abi,
-      options: options
-    }
-
-    let res = await axios({
-      url: `http://${process.env.SDS_REMOTE_HTTP}:${process.env.LISTENER_HTTP_SERVER_PORT}/register-smartcontract`, 
-      method: 'post',
-      // transformRequest: (data, _headers) => {
-      //   return JSON.stringify(data);
-      // },
-      data: register
-    }).catch(e => {
-      console.error(e);
-      process.exit(0);
     });
-    console.log("Result");
 
-    if (res.data && res.data.status === 'OK') {
-      console.log("Successfully registered.");
-      console.log("CDN available at: the url");
-      console.log("Check the backend for the API");
-    } else if (res.data) {
-      console.error(res.data);
-    } else {
-      console.error(res);
+    console.log(`Sending 'register_smartcontract' command to SDS Gateway`);
+    
+    let reply = await request(message);
+    if (!reply.is_ok()) {
+      console.error(`error: couldn't request data from SDS Gateway: `+reply.message);
     }
+
+    console.log(`'${topic_string}' was registered in SDS Gateway!`)
+    console.log(reply);
   }
 
   async enableBundling(smartcontractDeveloper: ethers.Signer, signerAddress: string, method: string, options: BundleOptions) {
-    if (!process.env.SDS_ORGANIZATION_NAME) {
-      throw 'Missing SDS_ORGANIZATION_NAME environment variable';
-    }
-    if (!process.env.SDS_PROJECT_NAME) {
-      throw 'Missing SDS_PROJECT_NAME environment variable';
-    }
+    this.topic.network_id = (await smartcontractDeveloper.getChainId()).toString();
+    this.topic.method = method;
 
     let bundle = options.toJSON();
-    bundle.topic_string = `${process.env.SDS_ORGANIZATION_NAME}.${process.env.SDS_PROJECT_NAME}.${await smartcontractDeveloper.getChainId()}.${this.group}.${this.name}.${method}`;
+    
+    bundle.topic_string = this.topic.toString(Topic.LEVEL_FULL);
     bundle.smartcontract_developer = await smartcontractDeveloper.getAddress();
     bundle.signer_address = signerAddress;
 
-    let res = await axios({
-      url: `http://${process.env.SDS_REMOTE_HTTP}:${process.env.LISTENER_HTTP_SERVER_PORT}/enable-bundling`, 
-      method: 'post',
-      data: bundle
-    }).catch(e => {
-      if (!e.response) {
-        console.error(`Server might be down. Connection refused!`);
-      } else {
-        console.error(`Error http code: ${e.response.status}, data: ${JSON.stringify(e.response.data, null, 4)}`);
-      }
-      process.exit(0);
-    });
+    let message = new MsgRequest('smartcontract_register', bundle);
 
-    if (res.data && res.data.status === 'OK') {
-      console.log("Successfully registered.");
-      console.log("CDN available at: the url");
-      console.log("Check the backend for the API");
-    } else if (res.data) {
-      console.log(`Data is returned`);
-      console.error(res.data);
-    } else {
-      console.error(`${JSON.stringify(res, null, 4)}`);
+    console.log(`Sending 'enable_bundling' command to SDS Gateway`);
+    
+    let reply = await request(message);
+    if (!reply.is_ok()) {
+      console.error(`error: couldn't request data from SDS Gateway: `+reply.message);
     }
+
+    console.log(`Bundling was enabled for '${bundle.topic_string}'.`);
+    console.log(reply)
   }
 
   /**
