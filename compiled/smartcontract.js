@@ -38,90 +38,66 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 exports.Smartcontract = void 0;
 var hardhat_1 = require("./utils/hardhat");
-var axios = require('axios')["default"];
+var env_1 = require("./env");
+var topic_1 = require("./sdk/topic");
+var request_1 = require("./sdk/message/request");
+var gateway_1 = require("./sdk/gateway");
 var Smartcontract = /** @class */ (function () {
-    function Smartcontract(name, group) {
-        this.name = name;
-        this.group = group;
+    function Smartcontract(group, name) {
+        (0, env_1.verify_env)();
+        var organization = process.env.SDS_ORGANIZATION_NAME;
+        var project = process.env.SDS_PROJECT_NAME;
+        this.topic = new topic_1.Topic(organization, project, '', group, name);
     }
-    /*let Token               = await ethers.getContractFactory("Token");
-      let deployer            = await ethers.getSigner();
-      let smartcontract       = new Smartcontract({name: 'my-sample-token', group: 'erc20'});
-  
-      // The last two parameters are constructor arguments.
-      await smartcontract.deployInHardhat(deployer, Token, deployer.address, 1).catch(console.error);
-    */
+    /**
+     * @description Deploy smartcontract using hardhat framework and at the same time register it on SDS.
+     */
     Smartcontract.prototype.deployInHardhat = function (deployer, contract, constructorArguments, options) {
         return __awaiter(this, void 0, void 0, function () {
-            var abi, deployed, address, txid, network_id, smartcontract_developer, topic_string, register, res;
-            var _a;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0: return [4 /*yield*/, (0, hardhat_1.abiFile)(this.name)];
+            var _a, abi, deployed, address, txid, topic_string, message, reply;
+            var _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        _a = this.topic;
+                        return [4 /*yield*/, deployer.getChainId()];
                     case 1:
-                        abi = _b.sent();
-                        if (abi === false) {
-                            throw 'SMARTCONTRACT_NAME_INVALID: can not find a smartcontract ABI. Make sure that Smartcontract name matches in the source code as well';
-                        }
-                        if (!process.env.SDS_ORGANIZATION_NAME) {
-                            throw 'Missing SDS_ORGANIZATION_NAME environment variable';
-                        }
-                        if (!process.env.SDS_PROJECT_NAME) {
-                            throw 'Missing SDS_PROJECT_NAME environment variable';
-                        }
-                        return [4 /*yield*/, (_a = contract.connect(deployer)).deploy.apply(_a, constructorArguments)];
+                        _a.network_id = (_c.sent()).toString();
+                        return [4 /*yield*/, (0, hardhat_1.abiFile)(this.topic.name)];
                     case 2:
-                        deployed = _b.sent();
+                        abi = _c.sent();
+                        if (abi === false) {
+                            throw "error: can not find a smartcontract ABI. Make sure that smartcontrat name in .sol file is ".concat(this.topic.name);
+                        }
+                        return [4 /*yield*/, (_b = contract.connect(deployer)).deploy.apply(_b, constructorArguments)];
+                    case 3:
+                        deployed = _c.sent();
                         console.log("Smartcontract is deploying... Please wait...");
                         // waiting for transaction confirmation...
                         return [4 /*yield*/, deployed.deployed()];
-                    case 3:
+                    case 4:
                         // waiting for transaction confirmation...
-                        _b.sent();
-                        console.log("'".concat(this.name, "' smartcontract was deployed on ").concat(deployed.address, "!"));
-                        console.log("Txhash: ".concat(deployed.deployTransaction.hash));
+                        _c.sent();
+                        console.log("".concat(this.topic.name, " deployed successfully!"));
                         address = deployed.address;
                         txid = deployed.deployTransaction.hash;
-                        return [4 /*yield*/, deployer.getChainId()];
-                    case 4:
-                        network_id = _b.sent();
-                        return [4 /*yield*/, deployer.getAddress()];
-                    case 5:
-                        smartcontract_developer = _b.sent();
-                        topic_string = "".concat(process.env.SDS_ORGANIZATION_NAME, ".").concat(process.env.SDS_PROJECT_NAME, ".").concat(network_id, ".").concat(this.group, ".").concat(this.name);
-                        register = {
+                        console.log("'".concat(this.topic.name, "' address ").concat(address));
+                        console.log("'".concat(this.topic.name, "' txid    ").concat(txid));
+                        topic_string = this.topic.toString(topic_1.Topic.LEVEL_NAME);
+                        message = new request_1.Request('smartcontract_register', {
                             topic_string: topic_string,
-                            address: address,
-                            smartcontract_developer: smartcontract_developer,
                             txid: txid,
-                            abi: abi,
-                            options: options
-                        };
-                        return [4 /*yield*/, axios({
-                                url: "http://".concat(process.env.SDS_REMOTE_HTTP, ":").concat(process.env.LISTENER_HTTP_SERVER_PORT, "/register-smartcontract"),
-                                method: 'post',
-                                // transformRequest: (data, _headers) => {
-                                //   return JSON.stringify(data);
-                                // },
-                                data: register
-                            })["catch"](function (e) {
-                                console.error(e);
-                                process.exit(0);
-                            })];
-                    case 6:
-                        res = _b.sent();
-                        console.log("Result");
-                        if (res.data && res.data.status === 'OK') {
-                            console.log("Successfully registered.");
-                            console.log("CDN available at: the url");
-                            console.log("Check the backend for the API");
+                            abi: abi
+                        });
+                        console.log("Sending 'register_smartcontract' command to SDS Gateway");
+                        return [4 /*yield*/, (0, gateway_1.request)(message)];
+                    case 5:
+                        reply = _c.sent();
+                        if (!reply.is_ok()) {
+                            console.error("error: couldn't request data from SDS Gateway: " + reply.message);
                         }
-                        else if (res.data) {
-                            console.error(res.data);
-                        }
-                        else {
-                            console.error(res);
-                        }
+                        console.log("'".concat(topic_string, "' was registered in SDS Gateway!"));
+                        console.log(reply);
                         return [2 /*return*/];
                 }
             });
@@ -129,54 +105,32 @@ var Smartcontract = /** @class */ (function () {
     };
     Smartcontract.prototype.enableBundling = function (smartcontractDeveloper, signerAddress, method, options) {
         return __awaiter(this, void 0, void 0, function () {
-            var bundle, _a, _b, _c, _d, res;
-            return __generator(this, function (_e) {
-                switch (_e.label) {
+            var _a, bundle, _b, message, reply;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
                     case 0:
-                        if (!process.env.SDS_ORGANIZATION_NAME) {
-                            throw 'Missing SDS_ORGANIZATION_NAME environment variable';
-                        }
-                        if (!process.env.SDS_PROJECT_NAME) {
-                            throw 'Missing SDS_PROJECT_NAME environment variable';
-                        }
-                        bundle = options.toJSON();
-                        _a = bundle;
-                        _c = (_b = "".concat(process.env.SDS_ORGANIZATION_NAME, ".").concat(process.env.SDS_PROJECT_NAME, ".")).concat;
+                        _a = this.topic;
                         return [4 /*yield*/, smartcontractDeveloper.getChainId()];
                     case 1:
-                        _a.topic_string = _c.apply(_b, [_e.sent(), "."]).concat(this.group, ".").concat(this.name, ".").concat(method);
-                        _d = bundle;
+                        _a.network_id = (_c.sent()).toString();
+                        this.topic.method = method;
+                        bundle = options.toJSON();
+                        bundle.topic_string = this.topic.toString(topic_1.Topic.LEVEL_FULL);
+                        _b = bundle;
                         return [4 /*yield*/, smartcontractDeveloper.getAddress()];
                     case 2:
-                        _d.smartcontract_developer = _e.sent();
+                        _b.smartcontract_developer = _c.sent();
                         bundle.signer_address = signerAddress;
-                        return [4 /*yield*/, axios({
-                                url: "http://".concat(process.env.SDS_REMOTE_HTTP, ":").concat(process.env.LISTENER_HTTP_SERVER_PORT, "/enable-bundling"),
-                                method: 'post',
-                                data: bundle
-                            })["catch"](function (e) {
-                                if (!e.response) {
-                                    console.error("Server might be down. Connection refused!");
-                                }
-                                else {
-                                    console.error("Error http code: ".concat(e.response.status, ", data: ").concat(JSON.stringify(e.response.data, null, 4)));
-                                }
-                                process.exit(0);
-                            })];
+                        message = new request_1.Request('smartcontract_register', bundle);
+                        console.log("Sending 'enable_bundling' command to SDS Gateway");
+                        return [4 /*yield*/, (0, gateway_1.request)(message)];
                     case 3:
-                        res = _e.sent();
-                        if (res.data && res.data.status === 'OK') {
-                            console.log("Successfully registered.");
-                            console.log("CDN available at: the url");
-                            console.log("Check the backend for the API");
+                        reply = _c.sent();
+                        if (!reply.is_ok()) {
+                            console.error("error: couldn't request data from SDS Gateway: " + reply.message);
                         }
-                        else if (res.data) {
-                            console.log("Data is returned");
-                            console.error(res.data);
-                        }
-                        else {
-                            console.error("".concat(JSON.stringify(res, null, 4)));
-                        }
+                        console.log("Bundling was enabled for '".concat(bundle.topic_string, "'."));
+                        console.log(reply);
                         return [2 /*return*/];
                 }
             });
