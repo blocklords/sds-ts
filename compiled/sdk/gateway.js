@@ -44,9 +44,35 @@ var Account = require("./account");
 var ethers_1 = require("ethers");
 // Init returns the Gateway connected socket.
 var init = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var socket, host;
+    var server_public_key, public_key, secret_key, socket, host;
     return __generator(this, function (_a) {
-        socket = new zmq.Request();
+        server_public_key = process.env.SDS_GATEWAY_PUBLIC_KEY;
+        if (typeof server_public_key !== "string") {
+            throw "missing 'SDS_GATEWAY_PUBLIC_KEY' environment variable";
+        }
+        if (server_public_key.length === 0) {
+            throw "empty 'SDS_GATEWAY_PUBLIC_KEY' environment variable";
+        }
+        public_key = process.env.SMARTCONTRACT_DEVELOPER_PUBLIC_KEY;
+        if (typeof public_key !== "string") {
+            throw "missing 'SMARTCONTRACT_DEVELOPER_PUBLIC_KEY' environment variable";
+        }
+        if (public_key.length === 0) {
+            throw "empty 'SMARTCONTRACT_DEVELOPER_PUBLIC_KEY' environment variable";
+        }
+        secret_key = process.env.SMARTCONTRACT_DEVELOPER_SECRET_KEY;
+        if (typeof secret_key !== "string") {
+            throw "missing 'SMARTCONTRACT_DEVELOPER_SECRET_KEY' environment variable";
+        }
+        if (secret_key.length === 0) {
+            throw "empty 'SMARTCONTRACT_DEVELOPER_SECRET_KEY' environment variable";
+        }
+        socket = new zmq.Request({
+            linger: 0,
+            curveServerKey: server_public_key,
+            curvePublicKey: public_key,
+            curveSecretKey: secret_key
+        });
         host = process.env.SDS_GATEWAY_HOST;
         if (typeof host !== "string") {
             throw "missing 'SDS_GATEWAY_HOST' environment variable";
