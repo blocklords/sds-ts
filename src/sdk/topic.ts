@@ -52,7 +52,8 @@ export class Topic {
         str += `e:${this.event};`
       }
 
-      return str;
+      // remove the ';' at the end.
+      return str.substring(0, str.length - 1)
     }
   
     level() {

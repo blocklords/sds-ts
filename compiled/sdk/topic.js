@@ -56,7 +56,8 @@ var Topic = /** @class */ (function () {
         if (this.event.length > 0) {
             str += "e:".concat(this.event, ";");
         }
-        return str;
+        // remove the ';' at the end.
+        return str.substring(0, str.length - 1);
     };
     Topic.prototype.level = function () {
         var level = 0;
