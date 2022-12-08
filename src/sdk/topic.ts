@@ -5,6 +5,7 @@ export class Topic {
     group: string = '';
     name: string = '';
     method: string = '';
+    event: string = '';
       
     constructor(organization, project, network_id = '', group = '', name = '', method = '') {
       this.organization = organization;
@@ -17,37 +18,41 @@ export class Topic {
   
     to_json(): any {
       return {
-        organization: this.organization,
-        project: this.project,
-        network_id: this.network_id,
-        group: this.group,
-        name: this.name,
-        method: this.method
+        o: this.organization,
+        p: this.project,
+        n: this.network_id,
+        g: this.group,
+        s: this.name,
+        m: this.method,
+        e: this.event,
       }
     }
   
     toString(level = 2): string {
-      if (level < 1 || level > 6) {
-        return '';
+      let str: string = '';
+      if (this.organization.length > 0) {
+        str += `o:${this.organization};`
       }
-      if (level == 1) {
-        return this.organization;
+      if (this.project.length > 0) {
+        str += `p:${this.project};`
       }
-      if (level == 2) {
-        return `${this.organization}.${this.project}`;
+      if (this.network_id.length > 0) {
+        str += `n:${this.network_id};`
       }
-      if (level == 3) {
-        return `${this.organization}.${this.project}.${this.network_id}`;
+      if (this.group.length > 0) {
+        str += `g:${this.group};`
       }
-      if (level == 4) {
-        return `${this.organization}.${this.project}.${this.network_id}.${this.group}`;
+      if (this.name.length > 0) {
+        str += `s:${this.name};`
       }
-      if (level == 5) {
-        return `${this.organization}.${this.project}.${this.network_id}.${this.group}.${this.name}`;
+      if (this.method.length > 0) {
+        str += `m:${this.method};`
       }
-  
-      // full level
-      return `${this.organization}.${this.project}.${this.network_id}.${this.group}.${this.name}.${this.method}`;
+      if (this.event.length > 0) {
+        str += `e:${this.event};`
+      }
+
+      return str;
     }
   
     level() {
@@ -74,49 +79,56 @@ export class Topic {
     }
   
     static parse_json(topic_obj): Topic {
-      let topic = new Topic(topic_obj.organization, topic_obj.project);
+      let topic = new Topic(topic_obj.o, topic_obj.p);
       
-      if (topic_obj.network_id) {
-        topic.network_id =topic_obj.network_id;
+      if (topic_obj.n) {
+        topic.network_id = topic_obj.n;
       }
       
-      if (topic_obj.group) {
-        topic.group =topic_obj.group;
+      if (topic_obj.g) {
+        topic.group = topic_obj.g;
       }
   
-      if (topic_obj.name) {
-        topic.name =topic_obj.name;
+      if (topic_obj.s) {
+        topic.name = topic_obj.s;
       }
   
-      if (topic_obj.method) {
-        topic.method =topic_obj.method;
+      if (topic_obj.m) {
+        topic.method = topic_obj.m;
+      }
+      
+      if (topic_obj.e) {
+        topic.event = topic_obj.e;
       }
   
       return topic;
     }
   
     static parse_string(topic_string: string): Topic {
-      let parts = topic_string.split('.');
+      let parts = topic_string.split(';');
       if (parts.length < 2) {
         throw `Atleast organization and project should be given`;
       }
   
-      if (parts.length > 6) {
-        throw `At most topic shuld be 6 level`;
-      }
-  
-      let topic = new Topic(parts[0], parts[1]);
-      if (parts.length > 2) {
-        topic.network_id = parts[2];
-      }
-      if (parts.length > 3) {
-        topic.group = parts[3];
-      }
-      if (parts.length > 4) {
-        topic.name = parts[4];
-      }
-      if (parts.length > 5) {
-        topic.method = parts[5];
+      let topic = new Topic("", "");
+      for (var part of parts) {
+        let path = part.split(':');
+
+        if (path[0] == "o") {
+          topic.organization = path[1];
+        } else if (path[0] == "p") {
+          topic.project = path[1];
+        } else if (path[0] == "n") {
+          topic.network_id = path[1];
+        } else if (path[0] == "g") {
+          topic.group = path[1];
+        } else if (path[0] == "s") {
+          topic.name = path[1];
+        } else if (path[0] == "m") {
+          topic.method = path[1];
+        } else if (path[0] == "e") {
+          topic.event = path[1];
+        }
       }
   
       return topic;
