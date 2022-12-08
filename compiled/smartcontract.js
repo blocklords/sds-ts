@@ -40,7 +40,7 @@ exports.Smartcontract = void 0;
 var hardhat_1 = require("./utils/hardhat");
 var env_1 = require("./env");
 var topic_1 = require("./sdk/topic");
-var request_1 = require("./sdk/message/request");
+var smartcontract_developer_request_1 = require("./sdk/message/smartcontract_developer_request");
 var gateway_1 = require("./sdk/gateway");
 var Smartcontract = /** @class */ (function () {
     function Smartcontract(group, name) {
@@ -84,14 +84,18 @@ var Smartcontract = /** @class */ (function () {
                         console.log("'".concat(this.topic.name, "' address ").concat(address));
                         console.log("'".concat(this.topic.name, "' txid    ").concat(txid));
                         topic_string = this.topic.toString(topic_1.Topic.LEVEL_NAME);
-                        message = new request_1.Request('smartcontract_register', {
+                        message = new smartcontract_developer_request_1.SmartcontractDeveloperRequest('smartcontract_register', {
                             topic_string: topic_string,
                             txid: txid,
                             abi: abi
                         });
-                        console.log("Sending 'register_smartcontract' command to SDS Gateway");
-                        return [4 /*yield*/, (0, gateway_1.request)(message)];
+                        return [4 /*yield*/, message.sign(deployer)];
                     case 5:
+                        message = _c.sent();
+                        console.log("Sending 'register_smartcontract' command to SDS Gateway");
+                        console.log("The message to send to the user: ", message.toJSON());
+                        return [4 /*yield*/, (0, gateway_1.request)(message)];
+                    case 6:
                         reply = _c.sent();
                         if (!reply.is_ok()) {
                             console.error("error: couldn't request data from SDS Gateway: " + reply.message);
@@ -129,14 +133,17 @@ var Smartcontract = /** @class */ (function () {
                             throw "error: can not find a smartcontract ABI. Make sure that smartcontrat name in .sol file is ".concat(this.topic.name);
                         }
                         topic_string = this.topic.toString(topic_1.Topic.LEVEL_NAME);
-                        message = new request_1.Request('smartcontract_register', {
+                        message = new smartcontract_developer_request_1.SmartcontractDeveloperRequest('smartcontract_register', {
                             topic_string: topic_string,
                             txid: txid,
                             abi: abi
                         });
+                        return [4 /*yield*/, message.sign(deployer)];
+                    case 3:
+                        message = _b.sent();
                         console.log("Sending 'register_smartcontract' command to SDS Gateway");
                         return [4 /*yield*/, (0, gateway_1.request)(message)];
-                    case 3:
+                    case 4:
                         reply = _b.sent();
                         if (!reply.is_ok()) {
                             console.error("error: couldn't request data from SDS Gateway: " + reply.message);
@@ -166,10 +173,13 @@ var Smartcontract = /** @class */ (function () {
                     case 2:
                         _b.smartcontract_developer = _c.sent();
                         bundle.signer_address = signerAddress;
-                        message = new request_1.Request('smartcontract_register', bundle);
+                        message = new smartcontract_developer_request_1.SmartcontractDeveloperRequest('smartcontract_register', bundle);
+                        return [4 /*yield*/, message.sign(smartcontractDeveloper)];
+                    case 3:
+                        message = _c.sent();
                         console.log("Sending 'enable_bundling' command to SDS Gateway");
                         return [4 /*yield*/, (0, gateway_1.request)(message)];
-                    case 3:
+                    case 4:
                         reply = _c.sent();
                         if (!reply.is_ok()) {
                             console.error("error: couldn't request data from SDS Gateway: " + reply.message);

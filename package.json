@@ -1,7 +1,7 @@
 {
   "name": "sds-cli",
-  "version": "0.3.1",
-  "description": "software development service (SDS) tool for smartcontract developers.",
+  "version": "0.3.2",
+  "description": "Software development service (SDS) tool for smartcontract developers.",
   "main": "compiled/index.js",
   "files": [
     "compiled/**/*"
@@ -34,8 +34,10 @@
     "@ethersproject/contracts": "^5.0.9",
     "@ethersproject/providers": "^5.0.18",
     "@ethersproject/solidity": "^5.0.8",
+    "ecies-geth": "^1.6.7",
     "ethers": "^5.5.4",
     "ethers-ts": "^5.5.3",
+    "json-stable-stringify": "^1.0.2",
     "stream-browserify": "^3.0.0",
     "tsify": "^5.0.4",
     "typescript": "^4.7.4",

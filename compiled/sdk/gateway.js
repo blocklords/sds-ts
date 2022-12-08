@@ -39,53 +39,64 @@ exports.__esModule = true;
 exports.request = void 0;
 var zmq = require("zeromq");
 var reply_1 = require("./message/reply");
+// Init returns the Gateway connected socket.
 var init = function () { return __awaiter(void 0, void 0, void 0, function () {
     var socket, host;
     return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                socket = new zmq.Request();
-                host = process.env.SDS_GATEWAY_HOST;
-                return [4 /*yield*/, socket.connect("tcp://" + host)];
-            case 1:
-                _a.sent();
-                return [2 /*return*/, socket];
+        socket = new zmq.Request();
+        host = process.env.SDS_GATEWAY_HOST;
+        if (typeof host !== "string") {
+            throw "missing 'SDS_GATEWAY_HOST' environment variable";
         }
+        if (host.length === 0) {
+            throw "empty 'SDS_GATEWAY_HOST' environment variable";
+        }
+        socket.connect("tcp://" + host);
+        return [2 /*return*/, socket];
     });
 }); };
 var request = function (msg) {
     return __awaiter(this, void 0, void 0, function () {
-        var socket, err_1, err_2, resultBuffer, err_3;
+        var socket, err_1, err_2, reply, resultBuffer, err_3;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 2, , 3]);
-                    return [4 /*yield*/, init()];
+                    if (msg.address === undefined || msg.address === null) {
+                        return [2 /*return*/, reply_1.Reply.fail("Failed to do to a request. The request should be signed first", {})];
+                    }
+                    _a.label = 1;
                 case 1:
-                    socket = _a.sent();
-                    return [3 /*break*/, 3];
+                    _a.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, init()];
                 case 2:
+                    socket = _a.sent();
+                    return [3 /*break*/, 4];
+                case 3:
                     err_1 = _a.sent();
                     return [2 /*return*/, reply_1.Reply.fail("Failed to init connection with SDS Gateway: " + err_1.toString(), {})];
-                case 3:
-                    _a.trys.push([3, 5, , 6]);
-                    return [4 /*yield*/, socket.send(msg.toString())];
                 case 4:
-                    _a.sent();
-                    return [3 /*break*/, 6];
+                    _a.trys.push([4, 6, , 7]);
+                    return [4 /*yield*/, socket.send(msg.toString())];
                 case 5:
+                    _a.sent();
+                    return [3 /*break*/, 7];
+                case 6:
                     err_2 = _a.sent();
                     return [2 /*return*/, reply_1.Reply.fail("Failed to send message to SDS Gateway: " + err_2.toString(), {})];
-                case 6:
-                    _a.trys.push([6, 8, , 9]);
-                    return [4 /*yield*/, socket.receive()];
                 case 7:
-                    resultBuffer = (_a.sent())[0];
-                    return [2 /*return*/, reply_1.Reply.fromBuffer(resultBuffer)];
+                    _a.trys.push([7, 9, , 10]);
+                    return [4 /*yield*/, socket.receive()];
                 case 8:
+                    resultBuffer = (_a.sent())[0];
+                    reply = reply_1.Reply.fromBuffer(resultBuffer);
+                    return [3 /*break*/, 10];
+                case 9:
                     err_3 = _a.sent();
-                    return [2 /*return*/, reply_1.Reply.fail("Failed to receive message from SDS Gateway: " + err_3.toString(), {})];
-                case 9: return [2 /*return*/];
+                    reply = reply_1.Reply.fail("Failed to receive message from SDS Gateway: " + err_3.toString(), {});
+                    return [3 /*break*/, 10];
+                case 10:
+                    socket.close();
+                    return [2 /*return*/, reply];
             }
         });
     });

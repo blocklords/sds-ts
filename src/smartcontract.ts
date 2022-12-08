@@ -3,7 +3,7 @@ import { abiFile as hardhatAbiFile } from "./utils/hardhat";
 import { BundleOptions } from "./bundle-options"
 import { verify_env } from "./env";
 import { Topic } from "./sdk/topic";
-import { Request as MsgRequest } from "./sdk/message/request";
+import { SmartcontractDeveloperRequest as MsgRequest } from "./sdk/message/smartcontract_developer_request";
 import { request } from "./sdk/gateway";
 
 export class Smartcontract {
@@ -48,8 +48,10 @@ export class Smartcontract {
       txid: txid,
       abi: abi,
     });
+    message = await message.sign(deployer);
 
     console.log(`Sending 'register_smartcontract' command to SDS Gateway`);
+    console.log(`The message to send to the user: `, message.toJSON());
     
     let reply = await request(message);
     if (!reply.is_ok()) {
@@ -84,6 +86,7 @@ export class Smartcontract {
       txid: txid,
       abi: abi,
     });
+    message = await message.sign(deployer);
 
     console.log(`Sending 'register_smartcontract' command to SDS Gateway`);
     
@@ -107,6 +110,7 @@ export class Smartcontract {
     bundle.signer_address = signerAddress;
 
     let message = new MsgRequest('smartcontract_register', bundle);
+    message = await message.sign(smartcontractDeveloper);
 
     console.log(`Sending 'enable_bundling' command to SDS Gateway`);
     

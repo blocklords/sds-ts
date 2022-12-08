@@ -19,6 +19,10 @@ npm i sds-cli
 ```
 
 ## Requirements
+> The smartcontract developer account
+> that registers the smartcontract should 
+> be whitelisted in the SDS.
+
 The library requires environment variables:
 
 ```sh
