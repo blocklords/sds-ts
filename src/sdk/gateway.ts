@@ -1,6 +1,8 @@
 import * as zmq from "zeromq";
 import { SmartcontractDeveloperRequest as MsgRequest } from "./message/smartcontract_developer_request";
 import { Reply as MsgReply } from "./message/reply";
+import * as Account from "./account";
+import { ethers } from "ethers"
 
 // Init returns the Gateway connected socket.
 let init = async () : Promise<zmq.Request> => {
@@ -17,6 +19,28 @@ let init = async () : Promise<zmq.Request> => {
     socket.connect(`tcp://` + host)
 
     return socket
+}
+
+/// Returns a curve keypair that's used for the backend developers.
+/// @param private_key is the smartcontract developer's account key
+export let generate_key = async function(private_key: string): Promise<MsgReply> {
+    let developer = new ethers.Wallet(private_key);
+
+    let message = new MsgRequest('generate_key', {});
+    message = await message.sign(developer);
+
+    var gateway_reply = await request(message);
+    if (!gateway_reply.is_ok()) {
+        return gateway_reply;
+    }
+
+    var public_key = await Account.decrypt(developer, gateway_reply.params.public_key);
+    var secret_key = await Account.decrypt(developer, gateway_reply.params.secret_key);
+
+    gateway_reply.params.public_key = public_key.toString();
+    gateway_reply.params.secret_key = secret_key.toString();
+
+    return gateway_reply;
 }
 
 export let request = async function(msg: MsgRequest): Promise<MsgReply> {

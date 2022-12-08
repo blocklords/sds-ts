@@ -36,9 +36,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.request = void 0;
+exports.request = exports.generate_key = void 0;
 var zmq = require("zeromq");
+var smartcontract_developer_request_1 = require("./message/smartcontract_developer_request");
 var reply_1 = require("./message/reply");
+var Account = require("./account");
+var ethers_1 = require("ethers");
 // Init returns the Gateway connected socket.
 var init = function () { return __awaiter(void 0, void 0, void 0, function () {
     var socket, host;
@@ -55,6 +58,39 @@ var init = function () { return __awaiter(void 0, void 0, void 0, function () {
         return [2 /*return*/, socket];
     });
 }); };
+/// Returns a curve keypair that's used for the backend developers.
+/// @param private_key is the smartcontract developer's account key
+var generate_key = function (private_key) {
+    return __awaiter(this, void 0, void 0, function () {
+        var developer, message, gateway_reply, public_key, secret_key;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    developer = new ethers_1.ethers.Wallet(private_key);
+                    message = new smartcontract_developer_request_1.SmartcontractDeveloperRequest('generate_key', {});
+                    return [4 /*yield*/, message.sign(developer)];
+                case 1:
+                    message = _a.sent();
+                    return [4 /*yield*/, (0, exports.request)(message)];
+                case 2:
+                    gateway_reply = _a.sent();
+                    if (!gateway_reply.is_ok()) {
+                        return [2 /*return*/, gateway_reply];
+                    }
+                    return [4 /*yield*/, Account.decrypt(developer, gateway_reply.params.public_key)];
+                case 3:
+                    public_key = _a.sent();
+                    return [4 /*yield*/, Account.decrypt(developer, gateway_reply.params.secret_key)];
+                case 4:
+                    secret_key = _a.sent();
+                    gateway_reply.params.public_key = public_key.toString();
+                    gateway_reply.params.secret_key = secret_key.toString();
+                    return [2 /*return*/, gateway_reply];
+            }
+        });
+    });
+};
+exports.generate_key = generate_key;
 var request = function (msg) {
     return __awaiter(this, void 0, void 0, function () {
         var socket, err_1, err_2, reply, resultBuffer, err_3;

@@ -1,6 +1,6 @@
 {
   "name": "sds-cli",
-  "version": "0.3.4",
+  "version": "0.3.6",
   "description": "Software development service (SDS) tool for smartcontract developers.",
   "main": "compiled/index.js",
   "files": [
