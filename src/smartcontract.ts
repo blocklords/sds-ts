@@ -63,6 +63,53 @@ export class Smartcontract {
   }
 
   /**
+   * 
+   * @param deployer The passed Truffle.Deployer object in the migration file
+   * @param contract The artifact
+   * @param constructorArguments 
+   */
+  async deployInTruffle(deployer: any, contract: any, constructorArguments: Array<any>) {
+    let web3: any;
+
+    this.topic.network_id = (await web3.eth.getChainId()).toString();
+    let deployer_address = web3.eth.getAccounts()[0]
+
+    // deploying smartcontract.
+    await deployer.deploy(contract, ...constructorArguments);
+
+    let abi = contract.abi;
+    if (!abi) {
+      throw `error: can not find a smartcontract ABI. Make sure that smartcontrat name in .sol file is ${this.topic.name}`;
+    }
+
+    console.log(`${this.topic.name} deployed successfully!`);
+
+    let address = contract.address;
+    let txid = contract.transactionHash;
+    console.log(`'${this.topic.name}' address ${address}`);
+    console.log(`'${this.topic.name}' txid    ${txid}`);
+
+    let topic_string = this.topic.toString(Topic.LEVEL_NAME);
+    let message = new MsgRequest('smartcontract_register', {
+      topic_string: topic_string,
+      txid: txid,
+      abi: abi,
+    });
+    message = await message.sign(deployer_address);
+
+    console.log(`Sending 'register_smartcontract' command to SDS Gateway`);
+    console.log(`The message to send to the user: `, message.toJSON());
+    
+    let reply = await request(message);
+    if (!reply.is_ok()) {
+      console.error(`error: couldn't request data from SDS Gateway: `+reply.message);
+    }
+
+    console.log(`'${topic_string}' was registered in SDS Gateway!`)
+    console.log(reply);
+  }
+
+  /**
    * Register already deployed smartcontract in SDS.
    * @param network_id NetworkID where contract is deployed
    * @param address Smartcontract address
@@ -99,6 +146,13 @@ export class Smartcontract {
     console.log(reply);
   }
 
+  /**
+   * Its tested in Hardhat framework.
+   * @param smartcontractDeveloper The developer
+   * @param signerAddress 
+   * @param method 
+   * @param options 
+   */
   async enableBundling(smartcontractDeveloper: ethers.Signer, signerAddress: string, method: string, options: BundleOptions) {
     this.topic.network_id = (await smartcontractDeveloper.getChainId()).toString();
     this.topic.method = method;

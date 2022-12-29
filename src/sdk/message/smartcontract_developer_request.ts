@@ -21,7 +21,28 @@ export class SmartcontractDeveloperRequest extends Request {
         }
     }
 
-    async sign(developer: ethers.Signer): Promise<SmartcontractDeveloperRequest> {
+    async sign(developer: ethers.Signer|string): Promise<SmartcontractDeveloperRequest> {
+        if (developer instanceof ethers.Signer) {
+            return this.ethers_sign(developer);
+        }
+        let web3: any;
+
+        this.address = developer;
+        this.nonce_timestamp = Math.round(new Date().getTime() * 1000)
+
+        // stringify sorts the parameters in alphabet order.
+        var message = stringify(this.toJSON())
+        // for the signature we don't need the signature
+        delete message.signature;
+        let message_hash = web3.utils.keccak256(message);
+
+        let signature = await web3.eth.sign(message_hash, developer);
+
+        this.signature = signature;
+        return this;
+    }
+
+    async ethers_sign(developer: ethers.Signer): Promise<SmartcontractDeveloperRequest> {
         this.address = await developer.getAddress();
         this.nonce_timestamp = Math.round(new Date().getTime() * 1000)
 
