@@ -63,7 +63,7 @@ export class Smartcontract {
   }
 
   /**
-   * 
+   * Deploys smartcontract on the blockchain, then registers it on SeascapeSDS.
    * @param deployer The passed Truffle.Deployer object in the migration file
    * @param contract The artifact
    * @param constructorArguments 
@@ -72,7 +72,7 @@ export class Smartcontract {
     let web3: any;
 
     this.topic.network_id = (await web3.eth.getChainId()).toString();
-    let deployer_address = web3.eth.getAccounts()[0]
+    let deployer_address = await web3.eth.getAccounts()[0]
 
     // deploying smartcontract.
     await deployer.deploy(contract, ...constructorArguments);
@@ -147,6 +147,44 @@ export class Smartcontract {
   }
 
   /**
+   * Registers already deployed smartcontract on SeascapeSDS
+   * @param address Smartcontract address
+   * @param txid Smartcontract deployment transaction hash
+   * @param contract Smartcontract artifact
+   */
+  async registerInTruffle(address: string, txid: string, contract: any) {
+    let web3: any;
+
+    this.topic.network_id = (await web3.eth.getChainId()).toString();
+    let deployer_address = await web3.eth.getAccounts()[0]
+
+    console.log(`'${this.topic.name}' address ${address}`);
+    console.log(`'${this.topic.name}' txid    ${txid}`);
+
+    let abi = contract.abi;
+    if (!abi) {
+      throw `failed to get the smartcontract abi`;
+    }
+    let topic_string = this.topic.toString(Topic.LEVEL_NAME);
+    let message = new MsgRequest('smartcontract_register', {
+      topic_string: topic_string,
+      txid: txid,
+      abi: abi,
+    });
+    message = await message.sign(deployer_address);
+
+    console.log(`Sending 'register_smartcontract' command to SDS Gateway`);
+    
+    let reply = await request(message);
+    if (!reply.is_ok()) {
+      console.error(`error: couldn't request data from SDS Gateway: `+reply.message);
+    }
+
+    console.log(`'${topic_string}' was registered in SDS Gateway!`)
+    console.log(reply);
+  }
+
+  /**
    * Its tested in Hardhat framework.
    * @param smartcontractDeveloper The developer
    * @param signerAddress 
@@ -154,6 +192,11 @@ export class Smartcontract {
    * @param options 
    */
   async enableBundling(smartcontractDeveloper: ethers.Signer, signerAddress: string, method: string, options: BundleOptions) {
+    let web3: any;
+    if (web3 === undefined) {
+      throw `the bundling not supported in truffle framework, yet!`;
+    }
+
     this.topic.network_id = (await smartcontractDeveloper.getChainId()).toString();
     this.topic.method = method;
 
