@@ -71,6 +71,30 @@ var SmartcontractDeveloperRequest = /** @class */ (function (_super) {
     };
     SmartcontractDeveloperRequest.prototype.sign = function (developer) {
         return __awaiter(this, void 0, void 0, function () {
+            var web3, message, message_hash, signature;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (developer instanceof ethers_1.ethers.Signer) {
+                            return [2 /*return*/, this.ethers_sign(developer)];
+                        }
+                        this.address = developer;
+                        this.nonce_timestamp = Math.round(new Date().getTime() * 1000);
+                        message = stringify(this.toJSON());
+                        // for the signature we don't need the signature
+                        delete message.signature;
+                        message_hash = web3.utils.keccak256(message);
+                        return [4 /*yield*/, web3.eth.sign(message_hash, developer)];
+                    case 1:
+                        signature = _a.sent();
+                        this.signature = signature;
+                        return [2 /*return*/, this];
+                }
+            });
+        });
+    };
+    SmartcontractDeveloperRequest.prototype.ethers_sign = function (developer) {
+        return __awaiter(this, void 0, void 0, function () {
             var _a, message, message_hash, signature;
             return __generator(this, function (_b) {
                 switch (_b.label) {

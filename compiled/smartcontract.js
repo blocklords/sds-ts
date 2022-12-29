@@ -35,6 +35,15 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
 exports.__esModule = true;
 exports.Smartcontract = void 0;
 var hardhat_1 = require("./utils/hardhat");
@@ -108,6 +117,65 @@ var Smartcontract = /** @class */ (function () {
         });
     };
     /**
+     * Deploys smartcontract on the blockchain, then registers it on SeascapeSDS.
+     * @param deployer The passed Truffle.Deployer object in the migration file
+     * @param contract The artifact
+     * @param constructorArguments
+     */
+    Smartcontract.prototype.deployInTruffle = function (deployer, contract, constructorArguments) {
+        return __awaiter(this, void 0, void 0, function () {
+            var web3, _a, deployer_address, abi, address, txid, topic_string, message, reply;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _a = this.topic;
+                        return [4 /*yield*/, web3.eth.getChainId()];
+                    case 1:
+                        _a.network_id = (_b.sent()).toString();
+                        return [4 /*yield*/, web3.eth.getAccounts()[0]
+                            // deploying smartcontract.
+                        ];
+                    case 2:
+                        deployer_address = _b.sent();
+                        // deploying smartcontract.
+                        return [4 /*yield*/, deployer.deploy.apply(deployer, __spreadArray([contract], constructorArguments, false))];
+                    case 3:
+                        // deploying smartcontract.
+                        _b.sent();
+                        abi = contract.abi;
+                        if (!abi) {
+                            throw "error: can not find a smartcontract ABI. Make sure that smartcontrat name in .sol file is ".concat(this.topic.name);
+                        }
+                        console.log("".concat(this.topic.name, " deployed successfully!"));
+                        address = contract.address;
+                        txid = contract.transactionHash;
+                        console.log("'".concat(this.topic.name, "' address ").concat(address));
+                        console.log("'".concat(this.topic.name, "' txid    ").concat(txid));
+                        topic_string = this.topic.toString(topic_1.Topic.LEVEL_NAME);
+                        message = new smartcontract_developer_request_1.SmartcontractDeveloperRequest('smartcontract_register', {
+                            topic_string: topic_string,
+                            txid: txid,
+                            abi: abi
+                        });
+                        return [4 /*yield*/, message.sign(deployer_address)];
+                    case 4:
+                        message = _b.sent();
+                        console.log("Sending 'register_smartcontract' command to SDS Gateway");
+                        console.log("The message to send to the user: ", message.toJSON());
+                        return [4 /*yield*/, (0, gateway_1.request)(message)];
+                    case 5:
+                        reply = _b.sent();
+                        if (!reply.is_ok()) {
+                            console.error("error: couldn't request data from SDS Gateway: " + reply.message);
+                        }
+                        console.log("'".concat(topic_string, "' was registered in SDS Gateway!"));
+                        console.log(reply);
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
      * Register already deployed smartcontract in SDS.
      * @param network_id NetworkID where contract is deployed
      * @param address Smartcontract address
@@ -155,12 +223,70 @@ var Smartcontract = /** @class */ (function () {
             });
         });
     };
+    /**
+     * Registers already deployed smartcontract on SeascapeSDS
+     * @param address Smartcontract address
+     * @param txid Smartcontract deployment transaction hash
+     * @param contract Smartcontract artifact
+     */
+    Smartcontract.prototype.registerInTruffle = function (address, txid, contract) {
+        return __awaiter(this, void 0, void 0, function () {
+            var web3, _a, deployer_address, abi, topic_string, message, reply;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _a = this.topic;
+                        return [4 /*yield*/, web3.eth.getChainId()];
+                    case 1:
+                        _a.network_id = (_b.sent()).toString();
+                        return [4 /*yield*/, web3.eth.getAccounts()[0]];
+                    case 2:
+                        deployer_address = _b.sent();
+                        console.log("'".concat(this.topic.name, "' address ").concat(address));
+                        console.log("'".concat(this.topic.name, "' txid    ").concat(txid));
+                        abi = contract.abi;
+                        if (!abi) {
+                            throw "failed to get the smartcontract abi";
+                        }
+                        topic_string = this.topic.toString(topic_1.Topic.LEVEL_NAME);
+                        message = new smartcontract_developer_request_1.SmartcontractDeveloperRequest('smartcontract_register', {
+                            topic_string: topic_string,
+                            txid: txid,
+                            abi: abi
+                        });
+                        return [4 /*yield*/, message.sign(deployer_address)];
+                    case 3:
+                        message = _b.sent();
+                        console.log("Sending 'register_smartcontract' command to SDS Gateway");
+                        return [4 /*yield*/, (0, gateway_1.request)(message)];
+                    case 4:
+                        reply = _b.sent();
+                        if (!reply.is_ok()) {
+                            console.error("error: couldn't request data from SDS Gateway: " + reply.message);
+                        }
+                        console.log("'".concat(topic_string, "' was registered in SDS Gateway!"));
+                        console.log(reply);
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Its tested in Hardhat framework.
+     * @param smartcontractDeveloper The developer
+     * @param signerAddress
+     * @param method
+     * @param options
+     */
     Smartcontract.prototype.enableBundling = function (smartcontractDeveloper, signerAddress, method, options) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, bundle, _b, message, reply;
+            var web3, _a, bundle, _b, message, reply;
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
+                        if (web3 === undefined) {
+                            throw "the bundling not supported in truffle framework, yet!";
+                        }
                         _a = this.topic;
                         return [4 /*yield*/, smartcontractDeveloper.getChainId()];
                     case 1:
