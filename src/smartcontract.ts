@@ -69,10 +69,8 @@ export class Smartcontract {
    * @param constructorArguments 
    */
   async deployInTruffle(deployer: any, contract: any, constructorArguments: Array<any>) {
-    let web3: any;
-
-    this.topic.network_id = (await web3.eth.getChainId()).toString();
-    let deployer_address = await web3.eth.getAccounts()[0]
+    this.topic.network_id = (await global.web3.eth.getChainId()).toString();
+    let deployer_address = await global.web3.eth.getAccounts()[0]
 
     // deploying smartcontract.
     await deployer.deploy(contract, ...constructorArguments);
@@ -153,10 +151,8 @@ export class Smartcontract {
    * @param contract Smartcontract artifact
    */
   async registerInTruffle(address: string, txid: string, contract: any) {
-    let web3: any;
-
-    this.topic.network_id = (await web3.eth.getChainId()).toString();
-    let deployer_address = await web3.eth.getAccounts()[0]
+    this.topic.network_id = (await global.web3.eth.getChainId()).toString();
+    let deployer_address = await global.web3.eth.getAccounts()[0]
 
     console.log(`'${this.topic.name}' address ${address}`);
     console.log(`'${this.topic.name}' txid    ${txid}`);
@@ -192,8 +188,7 @@ export class Smartcontract {
    * @param options 
    */
   async enableBundling(smartcontractDeveloper: ethers.Signer, signerAddress: string, method: string, options: BundleOptions) {
-    let web3: any;
-    if (web3 === undefined) {
+    if (global.web3 !== undefined) {
       throw `the bundling not supported in truffle framework, yet!`;
     }
 
