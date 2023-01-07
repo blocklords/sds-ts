@@ -124,15 +124,15 @@ var Smartcontract = /** @class */ (function () {
      */
     Smartcontract.prototype.deployInTruffle = function (deployer, contract, constructorArguments) {
         return __awaiter(this, void 0, void 0, function () {
-            var web3, _a, deployer_address, abi, address, txid, topic_string, message, reply;
+            var _a, deployer_address, abi, address, txid, topic_string, message, reply;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         _a = this.topic;
-                        return [4 /*yield*/, web3.eth.getChainId()];
+                        return [4 /*yield*/, global.web3.eth.getChainId()];
                     case 1:
                         _a.network_id = (_b.sent()).toString();
-                        return [4 /*yield*/, web3.eth.getAccounts()[0]
+                        return [4 /*yield*/, global.web3.eth.getAccounts()[0]
                             // deploying smartcontract.
                         ];
                     case 2:
@@ -231,15 +231,15 @@ var Smartcontract = /** @class */ (function () {
      */
     Smartcontract.prototype.registerInTruffle = function (address, txid, contract) {
         return __awaiter(this, void 0, void 0, function () {
-            var web3, _a, deployer_address, abi, topic_string, message, reply;
+            var _a, deployer_address, abi, topic_string, message, reply;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         _a = this.topic;
-                        return [4 /*yield*/, web3.eth.getChainId()];
+                        return [4 /*yield*/, global.web3.eth.getChainId()];
                     case 1:
                         _a.network_id = (_b.sent()).toString();
-                        return [4 /*yield*/, web3.eth.getAccounts()[0]];
+                        return [4 /*yield*/, global.web3.eth.getAccounts()[0]];
                     case 2:
                         deployer_address = _b.sent();
                         console.log("'".concat(this.topic.name, "' address ").concat(address));
@@ -280,11 +280,11 @@ var Smartcontract = /** @class */ (function () {
      */
     Smartcontract.prototype.enableBundling = function (smartcontractDeveloper, signerAddress, method, options) {
         return __awaiter(this, void 0, void 0, function () {
-            var web3, _a, bundle, _b, message, reply;
+            var _a, bundle, _b, message, reply;
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
-                        if (web3 === undefined) {
+                        if (global.web3 !== undefined) {
                             throw "the bundling not supported in truffle framework, yet!";
                         }
                         _a = this.topic;
