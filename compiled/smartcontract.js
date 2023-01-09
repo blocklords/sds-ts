@@ -211,9 +211,9 @@ var Smartcontract = /** @class */ (function () {
                         reply = _b.sent();
                         if (!reply.is_ok()) {
                             console.error("error: couldn't request data from SDS Gateway: " + reply.message);
+                            return [2 /*return*/];
                         }
-                        console.log("'".concat(topic_string, "' was registered in SDS Gateway!"));
-                        console.log(reply);
+                        console.log("'".concat(topic_string, "' was registered in SeascapeSDS!"));
                         return [2 /*return*/];
                 }
             });
@@ -258,9 +258,9 @@ var Smartcontract = /** @class */ (function () {
                         reply = _b.sent();
                         if (!reply.is_ok()) {
                             console.error("error: couldn't request data from SDS Gateway: " + reply.message);
+                            return [2 /*return*/];
                         }
-                        console.log("'".concat(topic_string, "' was registered in SDS Gateway!"));
-                        console.log(reply);
+                        console.log("'".concat(topic_string, "' was registered in SeascapeSDS!"));
                         return [2 /*return*/];
                 }
             });
