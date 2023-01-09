@@ -21,12 +21,16 @@ export class SmartcontractDeveloperRequest extends Request {
         }
     }
 
+    protected set_nonce(): void {
+        this.nonce_timestamp = Math.round(new Date().getTime() * 1000000)
+    }
+
     async sign(developer: ethers.Signer|string, web3: any = undefined): Promise<SmartcontractDeveloperRequest> {
         if (developer instanceof ethers.Signer) {
             return this.ethers_sign(developer);
         }
         this.address = developer;
-        this.nonce_timestamp = Math.round(new Date().getTime() * 1000)
+        this.set_nonce();
 
         // stringify sorts the parameters in alphabet order.
         var message = stringify(this.toJSON())
@@ -42,7 +46,7 @@ export class SmartcontractDeveloperRequest extends Request {
 
     async ethers_sign(developer: ethers.Signer): Promise<SmartcontractDeveloperRequest> {
         this.address = await developer.getAddress();
-        this.nonce_timestamp = Math.round(new Date().getTime() * 1000)
+        this.set_nonce();
 
         // stringify sorts the parameters in alphabet order.
         var message = stringify(this.toJSON())

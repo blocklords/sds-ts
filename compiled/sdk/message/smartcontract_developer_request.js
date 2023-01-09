@@ -69,6 +69,9 @@ var SmartcontractDeveloperRequest = /** @class */ (function (_super) {
             parameters: this.params
         };
     };
+    SmartcontractDeveloperRequest.prototype.set_nonce = function () {
+        this.nonce_timestamp = Math.round(new Date().getTime() * 1000000);
+    };
     SmartcontractDeveloperRequest.prototype.sign = function (developer, web3) {
         if (web3 === void 0) { web3 = undefined; }
         return __awaiter(this, void 0, void 0, function () {
@@ -80,7 +83,7 @@ var SmartcontractDeveloperRequest = /** @class */ (function (_super) {
                             return [2 /*return*/, this.ethers_sign(developer)];
                         }
                         this.address = developer;
-                        this.nonce_timestamp = Math.round(new Date().getTime() * 1000);
+                        this.set_nonce();
                         message = stringify(this.toJSON());
                         // for the signature we don't need the signature
                         delete message.signature;
@@ -104,7 +107,7 @@ var SmartcontractDeveloperRequest = /** @class */ (function (_super) {
                         return [4 /*yield*/, developer.getAddress()];
                     case 1:
                         _a.address = _b.sent();
-                        this.nonce_timestamp = Math.round(new Date().getTime() * 1000);
+                        this.set_nonce();
                         message = stringify(this.toJSON());
                         // for the signature we don't need the signature
                         delete message.signature;
