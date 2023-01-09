@@ -123,17 +123,21 @@ var Smartcontract = /** @class */ (function () {
      * @param contract The artifact
      * @param constructorArguments
      */
-    Smartcontract.prototype.deployInTruffle = function (deployer, contract, network_id, deployer_address, constructorArguments) {
+    Smartcontract.prototype.deployInTruffle = function (deployer, contract, web3, deployer_address, constructorArguments) {
         return __awaiter(this, void 0, void 0, function () {
-            var abi, address, txid, topic_string, message, reply;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: 
-                    // deploying smartcontract.
-                    return [4 /*yield*/, deployer.deploy.apply(deployer, __spreadArray([contract], constructorArguments, false))];
+            var _a, abi, address, txid, topic_string, message, reply;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _a = this.topic;
+                        return [4 /*yield*/, web3.eth.getChainId().toString()];
                     case 1:
+                        _a.network_id = _b.sent();
                         // deploying smartcontract.
-                        _a.sent();
+                        return [4 /*yield*/, deployer.deploy.apply(deployer, __spreadArray([contract], constructorArguments, false))];
+                    case 2:
+                        // deploying smartcontract.
+                        _b.sent();
                         abi = contract.abi;
                         if (!abi) {
                             throw "error: can not find a smartcontract ABI. Make sure that smartcontrat name in .sol file is ".concat(this.topic.name);
@@ -149,14 +153,14 @@ var Smartcontract = /** @class */ (function () {
                             txid: txid,
                             abi: abi
                         });
-                        return [4 /*yield*/, message.sign(deployer_address)];
-                    case 2:
-                        message = _a.sent();
+                        return [4 /*yield*/, message.sign(deployer_address, web3)];
+                    case 3:
+                        message = _b.sent();
                         console.log("Sending 'register_smartcontract' command to SDS Gateway");
                         console.log("The message to send to the user: ", message.toJSON());
                         return [4 /*yield*/, (0, gateway_1.request)(message)];
-                    case 3:
-                        reply = _a.sent();
+                    case 4:
+                        reply = _b.sent();
                         if (!reply.is_ok()) {
                             console.error("error: couldn't request data from SDS Gateway: " + reply.message);
                         }
@@ -223,13 +227,16 @@ var Smartcontract = /** @class */ (function () {
      * @param deployer_address of the address that deployed the smartcontract
      * @param contract Smartcontract artifact
      */
-    Smartcontract.prototype.registerInTruffle = function (address, txid, network_id, deployer_address, contract) {
+    Smartcontract.prototype.registerInTruffle = function (address, txid, web3, deployer_address, contract) {
         return __awaiter(this, void 0, void 0, function () {
-            var abi, topic_string, message, reply;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var _a, abi, topic_string, message, reply;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
-                        this.topic.network_id = network_id;
+                        _a = this.topic;
+                        return [4 /*yield*/, web3.eth.getChainId().toString()];
+                    case 1:
+                        _a.network_id = _b.sent();
                         console.log("'".concat(this.topic.name, "' address ").concat(address));
                         console.log("'".concat(this.topic.name, "' txid    ").concat(txid));
                         abi = contract.abi;
@@ -242,13 +249,13 @@ var Smartcontract = /** @class */ (function () {
                             txid: txid,
                             abi: abi
                         });
-                        return [4 /*yield*/, message.sign(deployer_address)];
-                    case 1:
-                        message = _a.sent();
+                        return [4 /*yield*/, message.sign(deployer_address, web3)];
+                    case 2:
+                        message = _b.sent();
                         console.log("Sending 'register_smartcontract' command to SDS Gateway");
                         return [4 /*yield*/, (0, gateway_1.request)(message)];
-                    case 2:
-                        reply = _a.sent();
+                    case 3:
+                        reply = _b.sent();
                         if (!reply.is_ok()) {
                             console.error("error: couldn't request data from SDS Gateway: " + reply.message);
                         }
@@ -261,6 +268,7 @@ var Smartcontract = /** @class */ (function () {
     };
     /**
      * Its tested in Hardhat framework.
+     * @warning Only supported in Hardhat framework
      * @param smartcontractDeveloper The developer
      * @param signerAddress
      * @param method
@@ -306,7 +314,7 @@ var Smartcontract = /** @class */ (function () {
         });
     };
     /**
-     * @description Returns a Contract interface
+     * Returns the Smartcontract interface
      * @param data JSON string or object
      * @returns ethers.ContractInterface
      * @throws error is data is string and can not be parsed as a JSON

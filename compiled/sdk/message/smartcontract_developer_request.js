@@ -69,9 +69,10 @@ var SmartcontractDeveloperRequest = /** @class */ (function (_super) {
             parameters: this.params
         };
     };
-    SmartcontractDeveloperRequest.prototype.sign = function (developer) {
+    SmartcontractDeveloperRequest.prototype.sign = function (developer, web3) {
+        if (web3 === void 0) { web3 = undefined; }
         return __awaiter(this, void 0, void 0, function () {
-            var web3, message, message_hash, signature;
+            var message, message_hash, signature;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:

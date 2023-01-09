@@ -68,7 +68,8 @@ export class Smartcontract {
    * @param contract The artifact
    * @param constructorArguments 
    */
-  async deployInTruffle(deployer: any, contract: any, network_id: string, deployer_address: string, constructorArguments: Array<any>) {
+  async deployInTruffle(deployer: any, contract: any, web3: any, deployer_address: string, constructorArguments: Array<any>) {
+    this.topic.network_id = await web3.eth.getChainId().toString();
     // deploying smartcontract.
     await deployer.deploy(contract, ...constructorArguments);
 
@@ -90,7 +91,7 @@ export class Smartcontract {
       txid: txid,
       abi: abi,
     });
-    message = await message.sign(deployer_address);
+    message = await message.sign(deployer_address, web3);
 
     console.log(`Sending 'register_smartcontract' command to SDS Gateway`);
     console.log(`The message to send to the user: `, message.toJSON());
@@ -149,8 +150,8 @@ export class Smartcontract {
    * @param deployer_address of the address that deployed the smartcontract
    * @param contract Smartcontract artifact
    */
-  async registerInTruffle(address: string, txid: string, network_id: string, deployer_address: string, contract: any) {
-    this.topic.network_id = network_id;
+  async registerInTruffle(address: string, txid: string, web3: any, deployer_address: string, contract: any) {
+    this.topic.network_id = await web3.eth.getChainId().toString();
 
     console.log(`'${this.topic.name}' address ${address}`);
     console.log(`'${this.topic.name}' txid    ${txid}`);
@@ -165,7 +166,7 @@ export class Smartcontract {
       txid: txid,
       abi: abi,
     });
-    message = await message.sign(deployer_address);
+    message = await message.sign(deployer_address, web3);
 
     console.log(`Sending 'register_smartcontract' command to SDS Gateway`);
     
@@ -180,6 +181,7 @@ export class Smartcontract {
 
   /**
    * Its tested in Hardhat framework.
+   * @warning Only supported in Hardhat framework
    * @param smartcontractDeveloper The developer
    * @param signerAddress 
    * @param method 
@@ -214,7 +216,7 @@ export class Smartcontract {
   }
 
   /**
-   * @description Returns a Contract interface
+   * Returns the Smartcontract interface
    * @param data JSON string or object
    * @returns ethers.ContractInterface
    * @throws error is data is string and can not be parsed as a JSON

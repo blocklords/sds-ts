@@ -38,7 +38,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 exports.request = exports.generate_key = void 0;
 var zmq = require("zeromq");
-var smartcontract_developer_request_1 = require("./message/smartcontract_developer_request");
 var reply_1 = require("./message/reply");
 var Account = require("./account");
 var ethers_1 = require("ethers");
@@ -93,7 +92,7 @@ var generate_key = function (private_key) {
             switch (_a.label) {
                 case 0:
                     developer = new ethers_1.ethers.Wallet(private_key);
-                    message = new smartcontract_developer_request_1.SmartcontractDeveloperRequest('generate_key', {});
+                    message = new MsgRequest('generate_key', {});
                     return [4 /*yield*/, message.sign(developer)];
                 case 1:
                     message = _a.sent();
