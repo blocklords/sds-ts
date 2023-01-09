@@ -45,7 +45,19 @@ let init = async () : Promise<zmq.Request> => {
         throw "empty 'SDS_GATEWAY_HOST' environment variable"
     }
 
-    socket.connect(`tcp://` + host)
+    let port = process.env.SDS_GATEWAY_PORT!
+    if (typeof port !== "string") {
+        throw "missing 'SDS_GATEWAY_PORT' environment variable";
+    }
+    if (port.length === 0) {
+        throw "empty 'SDS_GATEWAY_PORT' environment variable"
+    }
+
+    try {
+        socket.connect(`tcp://${host}:${port}`)
+    } catch (error) {
+        throw `error to connect to SDS Gateway. error message: ${error}`;
+    }
 
     return socket
 }
