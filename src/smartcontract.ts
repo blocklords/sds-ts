@@ -136,10 +136,10 @@ export class Smartcontract {
     let reply = await request(message);
     if (!reply.is_ok()) {
       console.error(`error: couldn't request data from SDS Gateway: `+reply.message);
+      return;
     }
 
-    console.log(`'${topic_string}' was registered in SDS Gateway!`)
-    console.log(reply);
+    console.log(`'${topic_string}' was registered in SeascapeSDS!`)
   }
 
   /**
@@ -173,10 +173,10 @@ export class Smartcontract {
     let reply = await request(message);
     if (!reply.is_ok()) {
       console.error(`error: couldn't request data from SDS Gateway: `+reply.message);
+      return;
     }
 
-    console.log(`'${topic_string}' was registered in SDS Gateway!`)
-    console.log(reply);
+    console.log(`'${topic_string}' was registered in SeascapeSDS!`)
   }
 
   /**
