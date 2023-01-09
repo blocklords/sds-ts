@@ -46,6 +46,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
 };
 exports.__esModule = true;
 exports.Smartcontract = void 0;
+var ethers_1 = require("ethers");
 var hardhat_1 = require("./utils/hardhat");
 var env_1 = require("./env");
 var topic_1 = require("./sdk/topic");
@@ -122,26 +123,17 @@ var Smartcontract = /** @class */ (function () {
      * @param contract The artifact
      * @param constructorArguments
      */
-    Smartcontract.prototype.deployInTruffle = function (deployer, contract, constructorArguments) {
+    Smartcontract.prototype.deployInTruffle = function (deployer, contract, network_id, deployer_address, constructorArguments) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, deployer_address, abi, address, txid, topic_string, message, reply;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _a = this.topic;
-                        return [4 /*yield*/, global.web3.eth.getChainId()];
+            var abi, address, txid, topic_string, message, reply;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: 
+                    // deploying smartcontract.
+                    return [4 /*yield*/, deployer.deploy.apply(deployer, __spreadArray([contract], constructorArguments, false))];
                     case 1:
-                        _a.network_id = (_b.sent()).toString();
-                        return [4 /*yield*/, global.web3.eth.getAccounts()[0]
-                            // deploying smartcontract.
-                        ];
-                    case 2:
-                        deployer_address = _b.sent();
                         // deploying smartcontract.
-                        return [4 /*yield*/, deployer.deploy.apply(deployer, __spreadArray([contract], constructorArguments, false))];
-                    case 3:
-                        // deploying smartcontract.
-                        _b.sent();
+                        _a.sent();
                         abi = contract.abi;
                         if (!abi) {
                             throw "error: can not find a smartcontract ABI. Make sure that smartcontrat name in .sol file is ".concat(this.topic.name);
@@ -158,13 +150,13 @@ var Smartcontract = /** @class */ (function () {
                             abi: abi
                         });
                         return [4 /*yield*/, message.sign(deployer_address)];
-                    case 4:
-                        message = _b.sent();
+                    case 2:
+                        message = _a.sent();
                         console.log("Sending 'register_smartcontract' command to SDS Gateway");
                         console.log("The message to send to the user: ", message.toJSON());
                         return [4 /*yield*/, (0, gateway_1.request)(message)];
-                    case 5:
-                        reply = _b.sent();
+                    case 3:
+                        reply = _a.sent();
                         if (!reply.is_ok()) {
                             console.error("error: couldn't request data from SDS Gateway: " + reply.message);
                         }
@@ -227,21 +219,16 @@ var Smartcontract = /** @class */ (function () {
      * Registers already deployed smartcontract on SeascapeSDS
      * @param address Smartcontract address
      * @param txid Smartcontract deployment transaction hash
+     * @param network_id The network id where the smartcontract was deployed on
+     * @param deployer_address of the address that deployed the smartcontract
      * @param contract Smartcontract artifact
      */
-    Smartcontract.prototype.registerInTruffle = function (address, txid, contract) {
+    Smartcontract.prototype.registerInTruffle = function (address, txid, network_id, deployer_address, contract) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, deployer_address, abi, topic_string, message, reply;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var abi, topic_string, message, reply;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
-                        _a = this.topic;
-                        return [4 /*yield*/, global.web3.eth.getChainId()];
-                    case 1:
-                        _a.network_id = (_b.sent()).toString();
-                        return [4 /*yield*/, global.web3.eth.getAccounts()[0]];
-                    case 2:
-                        deployer_address = _b.sent();
                         console.log("'".concat(this.topic.name, "' address ").concat(address));
                         console.log("'".concat(this.topic.name, "' txid    ").concat(txid));
                         abi = contract.abi;
@@ -255,12 +242,12 @@ var Smartcontract = /** @class */ (function () {
                             abi: abi
                         });
                         return [4 /*yield*/, message.sign(deployer_address)];
-                    case 3:
-                        message = _b.sent();
+                    case 1:
+                        message = _a.sent();
                         console.log("Sending 'register_smartcontract' command to SDS Gateway");
                         return [4 /*yield*/, (0, gateway_1.request)(message)];
-                    case 4:
-                        reply = _b.sent();
+                    case 2:
+                        reply = _a.sent();
                         if (!reply.is_ok()) {
                             console.error("error: couldn't request data from SDS Gateway: " + reply.message);
                         }
@@ -284,7 +271,7 @@ var Smartcontract = /** @class */ (function () {
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
-                        if (global.web3 !== undefined) {
+                        if (!(smartcontractDeveloper instanceof ethers_1.ethers.Signer)) {
                             throw "the bundling not supported in truffle framework, yet!";
                         }
                         _a = this.topic;
