@@ -229,6 +229,7 @@ var Smartcontract = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
+                        this.topic.network_id = network_id;
                         console.log("'".concat(this.topic.name, "' address ").concat(address));
                         console.log("'".concat(this.topic.name, "' txid    ").concat(txid));
                         abi = contract.abi;

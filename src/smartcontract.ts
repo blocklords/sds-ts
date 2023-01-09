@@ -150,6 +150,8 @@ export class Smartcontract {
    * @param contract Smartcontract artifact
    */
   async registerInTruffle(address: string, txid: string, network_id: string, deployer_address: string, contract: any) {
+    this.topic.network_id = network_id;
+
     console.log(`'${this.topic.name}' address ${address}`);
     console.log(`'${this.topic.name}' txid    ${txid}`);
 
