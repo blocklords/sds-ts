@@ -44,7 +44,7 @@ var Account = require("./account");
 var ethers_1 = require("ethers");
 // Init returns the Gateway connected socket.
 var init = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var server_public_key, public_key, secret_key, socket, host;
+    var server_public_key, public_key, secret_key, socket, host, port;
     return __generator(this, function (_a) {
         server_public_key = process.env.SDS_GATEWAY_PUBLIC_KEY;
         if (typeof server_public_key !== "string") {
@@ -80,7 +80,19 @@ var init = function () { return __awaiter(void 0, void 0, void 0, function () {
         if (host.length === 0) {
             throw "empty 'SDS_GATEWAY_HOST' environment variable";
         }
-        socket.connect("tcp://" + host);
+        port = process.env.SDS_GATEWAY_PORT;
+        if (typeof port !== "string") {
+            throw "missing 'SDS_GATEWAY_PORT' environment variable";
+        }
+        if (port.length === 0) {
+            throw "empty 'SDS_GATEWAY_PORT' environment variable";
+        }
+        try {
+            socket.connect("tcp://".concat(host, ":").concat(port));
+        }
+        catch (error) {
+            throw "error to connect to SDS Gateway. error message: ".concat(error);
+        }
         return [2 /*return*/, socket];
     });
 }); };

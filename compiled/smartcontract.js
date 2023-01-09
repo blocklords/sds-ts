@@ -130,9 +130,9 @@ var Smartcontract = /** @class */ (function () {
                 switch (_b.label) {
                     case 0:
                         _a = this.topic;
-                        return [4 /*yield*/, web3.eth.getChainId().toString()];
+                        return [4 /*yield*/, web3.eth.net.getId()];
                     case 1:
-                        _a.network_id = _b.sent();
+                        _a.network_id = (_b.sent()).toString();
                         // deploying smartcontract.
                         return [4 /*yield*/, deployer.deploy.apply(deployer, __spreadArray([contract], constructorArguments, false))];
                     case 2:
@@ -234,9 +234,9 @@ var Smartcontract = /** @class */ (function () {
                 switch (_b.label) {
                     case 0:
                         _a = this.topic;
-                        return [4 /*yield*/, web3.eth.getChainId().toString()];
+                        return [4 /*yield*/, web3.eth.net.getId()];
                     case 1:
-                        _a.network_id = _b.sent();
+                        _a.network_id = (_b.sent()).toString();
                         console.log("'".concat(this.topic.name, "' address ").concat(address));
                         console.log("'".concat(this.topic.name, "' txid    ").concat(txid));
                         abi = contract.abi;
