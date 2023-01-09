@@ -69,7 +69,7 @@ export class Smartcontract {
    * @param constructorArguments 
    */
   async deployInTruffle(deployer: any, contract: any, web3: any, deployer_address: string, constructorArguments: Array<any>) {
-    this.topic.network_id = await web3.eth.getChainId().toString();
+    this.topic.network_id = (await web3.eth.net.getId()).toString();
     // deploying smartcontract.
     await deployer.deploy(contract, ...constructorArguments);
 
@@ -151,7 +151,7 @@ export class Smartcontract {
    * @param contract Smartcontract artifact
    */
   async registerInTruffle(address: string, txid: string, web3: any, deployer_address: string, contract: any) {
-    this.topic.network_id = await web3.eth.getChainId().toString();
+    this.topic.network_id = (await web3.eth.net.getId()).toString();
 
     console.log(`'${this.topic.name}' address ${address}`);
     console.log(`'${this.topic.name}' txid    ${txid}`);
