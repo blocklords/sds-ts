@@ -31,6 +31,9 @@ SDS_PROJECT_NAME=
 SDS_GATEWAY_HOST=localhost:3500
 ```
 
+### ZMQ
+It also requires ZeroMQ library, libsodium to be installed on your machine.
+
 ## Features
 The **SDS Cli** supports two following operations with SDS.
 
