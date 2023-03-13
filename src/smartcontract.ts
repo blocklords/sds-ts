@@ -56,7 +56,7 @@ export class Smartcontract {
     console.log(`'${this.topic.name}' address ${address}`);
     console.log(`'${this.topic.name}' txid    ${txid}`);
 
-    let topic_string = this.topic.toString(Topic.LEVEL_NAME);
+    let topic_string = this.topic.to_string(Topic.LEVEL_NAME);
     let message = new MsgRequest('smartcontract_register', {
       topic_string: topic_string,
       txid: txid,
@@ -99,7 +99,7 @@ export class Smartcontract {
     console.log(`'${this.topic.name}' address ${address}`);
     console.log(`'${this.topic.name}' txid    ${txid}`);
 
-    let topic_string = this.topic.toString(Topic.LEVEL_NAME);
+    let topic_string = this.topic.to_string(Topic.LEVEL_NAME);
     let message = new MsgRequest('smartcontract_register', {
       topic_string: topic_string,
       txid: txid,
@@ -137,7 +137,7 @@ export class Smartcontract {
       throw `error: can not find a smartcontract ABI. Make sure that smartcontrat name in .sol file is ${this.topic.name}`;
     }
 
-    let topic_string = this.topic.toString(Topic.LEVEL_NAME);
+    let topic_string = this.topic.to_string(Topic.LEVEL_NAME);
     let message = new MsgRequest('smartcontract_register', {
       topic_string: topic_string,
       txid: txid,
@@ -174,7 +174,7 @@ export class Smartcontract {
     if (!abi) {
       throw `failed to get the smartcontract abi`;
     }
-    let topic_string = this.topic.toString(Topic.LEVEL_NAME);
+    let topic_string = this.topic.to_string(Topic.LEVEL_NAME);
     let message = new MsgRequest('smartcontract_register', {
       topic_string: topic_string,
       txid: txid,
@@ -211,7 +211,7 @@ export class Smartcontract {
 
     let bundle = options.toJSON();
     
-    bundle.topic_string = this.topic.toString(Topic.LEVEL_FULL);
+    bundle.topic_string = this.topic.to_string(Topic.LEVEL_FULL);
     bundle.smartcontract_developer = await smartcontractDeveloper.getAddress();
     bundle.signer_address = signerAddress;
 
