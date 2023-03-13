@@ -47,9 +47,14 @@ export let generate_key = async function(private_key: string): Promise<MsgReply>
     return gateway_reply;
 }
 
+/**
+ * Send the message to the Gateway.
+ * @param msg The message to send to the remote SmartcontractDeveloper Gateway
+ * @returns Reply from the Gateway
+ */
 export let request = async function(msg: MsgRequest): Promise<MsgReply> {
-    if (msg.address === undefined || msg.address === null) {
-        return MsgReply.fail("Failed to do to a request. The request should be signed first", {})
+    if (!msg.is_signed()) {
+        return MsgReply.fail("the message be signed", {})
     }
     let socket: zmq.Request;
     try {

@@ -8,7 +8,7 @@ var stringify = require('json-stable-stringify');
  * - params
  */
 export class SmartcontractDeveloperRequest extends Request {
-    public address: string;
+    private address: string;
     private signature: string;
     private nonce_timestamp: number;
     
@@ -16,7 +16,15 @@ export class SmartcontractDeveloperRequest extends Request {
         super(command, params);
     }
 
+    /**
+     * Whether the message included signature or not
+     */
+    public is_signed(): boolean {
+        return this.signature.length > 0;
+    }
+
     toJSON() : object {
+        // Clone the parameters.
         let parameters = { ...this.parameters};
         parameters['_address'] = this.address;
         parameters['_signature'] = this.signature;
