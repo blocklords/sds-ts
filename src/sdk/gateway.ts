@@ -38,11 +38,11 @@ export let generate_key = async function(private_key: string): Promise<MsgReply>
         return gateway_reply;
     }
 
-    var public_key = await Account.decrypt(developer, gateway_reply.params.public_key);
-    var secret_key = await Account.decrypt(developer, gateway_reply.params.secret_key);
+    var public_key = await Account.decrypt(developer, gateway_reply.parameters.public_key);
+    var secret_key = await Account.decrypt(developer, gateway_reply.parameters.secret_key);
 
-    gateway_reply.params.public_key = public_key.toString();
-    gateway_reply.params.secret_key = secret_key.toString();
+    gateway_reply.parameters.public_key = public_key.toString();
+    gateway_reply.parameters.secret_key = secret_key.toString();
 
     return gateway_reply;
 }
