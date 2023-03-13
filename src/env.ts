@@ -14,13 +14,4 @@ export const verify_env = function () {
     if (!host) {
         throw `Missing 'SDS_GATEWAY_HOST' environment variable`;
     }
-
-    let secret_key = process.env.SDS_SECRET_KEY!
-    if (!secret_key) {
-        throw `Missing 'SDS_SECRET_KEY' environment variable`;
-    }
-
-    if (!process.env.SDS_PUBLIC_KEY) {
-        throw `Missing 'SDS_PUBLIC_KEY' environment variable`;
-    }
 }
