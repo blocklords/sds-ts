@@ -2,6 +2,11 @@ import { ethers } from "ethers";
 import { Request } from "./request";
 var stringify = require('json-stable-stringify');
 
+/**
+ * The message that's send by Smartcontract Developer to the SeascapeSDS.
+ * This message is derived from message.Request() with additional parameters:
+ * - params
+ */
 export class SmartcontractDeveloperRequest extends Request {
     public address: string;
     private signature: string;
@@ -11,14 +16,14 @@ export class SmartcontractDeveloperRequest extends Request {
         super(command, params);
     }
 
-    toJSON() : any {
-        return {
-            address: this.address,
-            signature: this.signature,
-            nonce_timestamp: this.nonce_timestamp,
-            command: this.command,
-            parameters: this.params
-        }
+    toJSON() : object {
+        let parameters = { ...this.parameters};
+        parameters['_address'] = this.address;
+        parameters['_signature'] = this.signature;
+        parameters['_nonce_timestamp'] = this.nonce_timestamp;
+
+        let request = new Request(this.command, parameters);
+        return request.toJSON();
     }
 
     protected set_nonce(): void {

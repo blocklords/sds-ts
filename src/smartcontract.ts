@@ -44,11 +44,9 @@ export class Smartcontract {
     }
 
     let deployed = await contract.connect(deployer).deploy(...constructorArguments);    /// Argument '1' means deploy in Test mode
+
     console.log(`Smartcontract is deploying... Please wait...`);
-
-    // waiting for transaction confirmation...
     await deployed.deployed();
-
     console.log(`${this.topic.name} deployed successfully!`);
 
     let address = deployed.address;
