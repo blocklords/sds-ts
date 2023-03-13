@@ -1,4 +1,3 @@
-import { ethers } from "ethers";
 import { Request } from "./request";
 var stringify = require('json-stable-stringify');
 
@@ -52,22 +51,6 @@ export class SmartcontractDeveloperRequest extends Request {
 
     public set_signature(signature: string) {
         this.signature = signature;
-    }
-
-    async sign(developer: string, web3: any = undefined): Promise<SmartcontractDeveloperRequest> {
-        this.address = developer;
-        this.set_nonce();
-
-        // stringify sorts the parameters in alphabet order.
-        var message = stringify(this.toJSON())
-        // for the signature we don't need the signature
-        delete message.parameters._signature;
-        let message_hash = web3.utils.keccak256(message);
-
-        let signature = await web3.eth.sign(message_hash, developer);
-
-        this.signature = signature;
-        return this;
     }
 
     toString() : string {
