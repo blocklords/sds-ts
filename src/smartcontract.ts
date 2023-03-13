@@ -6,9 +6,23 @@ import { Topic } from "./sdk/topic";
 import { SmartcontractDeveloperRequest as MsgRequest } from "./sdk/message/smartcontract_developer_request";
 import { request } from "./sdk/gateway";
 
+/** @description Smartcontract handles the registration of the smartcontract on SeascapeSDS.
+ */
 export class Smartcontract {
   topic: Topic;
   
+  /**
+   * Create a new smartcontract with the topic.
+   * The topic's organization and project parameters are fetched from environment variables.
+   * @param group Smartcontract Group
+   * @param name Smartcontract Name should match to the name as its defined in the code.
+   * @example Assume that "SomeErc20.sol" file has `contract SomeErc20 {}`
+   * Then the `name` parameter should be `SomeErc20`.
+   * @throws exception if the environment variables are missing.
+   * @requires SDS_ORGANIZATION_NAME environment variable. Example: seascape.
+   * @requires SDS_PROJECT_NAME environment variable. Example: `uniswap`.
+   * @requires SDS_GATEWAY_HOST environment variable. Example: tcp://localhost:4001
+   */
   constructor(group: string, name: string) {
     verify_env();
 
