@@ -48,7 +48,7 @@ export class SmartcontractDeveloperRequest extends Request {
         // stringify sorts the parameters in alphabet order.
         var message = stringify(this.toJSON())
         // for the signature we don't need the signature
-        delete message.signature;
+        delete message.parameters._signature;
         let message_hash = web3.utils.keccak256(message);
 
         let signature = await web3.eth.sign(message_hash, developer);
@@ -64,7 +64,7 @@ export class SmartcontractDeveloperRequest extends Request {
         // stringify sorts the parameters in alphabet order.
         var message = stringify(this.toJSON())
         // for the signature we don't need the signature
-        delete message.signature;
+        delete message.parameters._signature;
 
         var message_hash = ethers.utils.arrayify(ethers.utils.id(message));
         var signature = await developer.signMessage(message_hash);
