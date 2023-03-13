@@ -1,3 +1,12 @@
+/**
+ * @description Topic is the identifier of the smartcontract in SeascapeSDS.
+ * Topics are:
+ * - easy to remember
+ * - easy to share
+ * - easy to filter (using TopicFilter)
+ * 
+ * *Check the SeascapeSDS documentation about Topics.*
+ */
 export class Topic {
     organization: string = '';
     project: string = '';
@@ -7,7 +16,16 @@ export class Topic {
     method: string = '';
     event: string = '';
       
-    constructor(organization, project, network_id = '', group = '', name = '', method = '') {
+    /**
+     * Create a new Topic
+     * @param organization **required** 
+     * @param project **required**
+     * @param network_id 
+     * @param group 
+     * @param name 
+     * @param method 
+     */
+    constructor(organization: string, project: string, network_id = '', group = '', name = '', method = '') {
       this.organization = organization;
       this.project = project;
       this.network_id = network_id;
@@ -16,7 +34,11 @@ export class Topic {
       this.method = method;
     }
   
-    to_json(): any {
+    /**
+     * Serializes this Topic to the JSON object
+     * @returns JSON object
+     */
+    public to_json(): object {
       return {
         o: this.organization,
         p: this.project,
@@ -28,7 +50,25 @@ export class Topic {
       }
     }
   
-    toString(level = 2): string {
+    /**
+     * Converts Topic into TopicString.
+     * The format of the TopicString is: *`<property>:<value>;...`*
+     * @param level how many properties it should put into the TopicString.
+     * @returns TopicString
+     * @example
+     * 
+     * let topic = Topic{
+     *    organization: "seascape",
+     *    project: "profit-circus",
+     *    network_id: "1",
+     *    group: "game",
+     *    smartcontract: "ProfitCircus"
+     * }
+     * 
+     * let topic_string = topic.to_string(2);
+     * assert(topic_string == "o:seascape;project:profit-circus");
+     */
+    public to_string(level: Number = 2): string {
       let str: string = '';
       if (this.organization.length > 0) {
         str += `o:${this.organization};`
