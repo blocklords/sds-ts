@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 import { abiFile as hardhatAbiFile } from "./utils/hardhat";
 import { BundleOptions } from "./bundle-options"
 import { verify_env } from "./env";
-import { Topic } from "./sdk/topic";
+import { Topic } from "./common/topic";
 import { SmartcontractDeveloperRequest as MsgRequest } from "./sdk/message/smartcontract_developer_request";
 import { request } from "./sdk/gateway";
 
