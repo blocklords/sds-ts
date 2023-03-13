@@ -1,7 +1,7 @@
 export class Reply {
     status: string;
     message: string;
-    parameters: any;
+    parameters: object;
     
     constructor(status: string, message: string, parameters: any) {
         this.status = status,
@@ -13,7 +13,7 @@ export class Reply {
         return this.status == Reply.OK;
     }
 
-    toJSON() : any {
+    toJSON() : object {
         return {
             status: this.status,
             message: this.message,
@@ -25,21 +25,21 @@ export class Reply {
         return JSON.stringify(this.toJSON(), null, 4);
     }
 
-    static fail(message, parameters) {
+    static fail(message: string, parameters: undefined|object): Reply {
         if (parameters == undefined) {
             parameters = {};
         }
         return new Reply(Reply.FAIL, message, parameters);
     }
 
-    static ok(parameters: any) {
+    static ok(parameters: undefined | object): Reply {
         if (parameters == undefined) {
             parameters = {};
         }
         return new Reply(Reply.OK, '', parameters);
     }
 
-    static fromBuffer(buffer: any) {
+    static fromBuffer(buffer: Buffer): Reply {
         let raw = buffer.toString();
         let obj = JSON.parse(raw);
         return new Reply(obj.status, obj.message, obj.parameters);
