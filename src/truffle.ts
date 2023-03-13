@@ -58,12 +58,14 @@ export class Truffle extends Smartcontract {
     console.log(`'${this.topic.name}' txid    ${txid}`);
 
     let topic_string = this.topic.to_string(Topic.LEVEL_NAME);
-    let message = new MsgRequest('smartcontract_register', {
+    let message = new MsgRequest(this.deployer, 'smartcontract_register', {
       topic_string: topic_string,
       txid: txid,
       abi: abi,
     });
-    message = await message.sign("", this.web3);
+    let digest = message.digest();
+    let signature = await this.sign(digest);
+    message.set_signature(signature);
 
     console.log(`Sending 'register_smartcontract' command to SDS Gateway`);
     console.log(`The message to send to the user: `, message.toJSON());
@@ -96,12 +98,14 @@ export class Truffle extends Smartcontract {
       throw `failed to get the smartcontract abi`;
     }
     let topic_string = this.topic.to_string(Topic.LEVEL_NAME);
-    let message = new MsgRequest('smartcontract_register', {
+    let message = new MsgRequest(this.deployer, 'smartcontract_register', {
       topic_string: topic_string,
       txid: txid,
       abi: abi,
     });
-    message = await message.sign("", this.web3);
+    let digest = message.digest();
+    let signature = await this.sign(digest);
+    message.set_signature(signature);
 
     console.log(`Sending 'register_smartcontract' command to SDS Gateway`);
     
@@ -112,5 +116,13 @@ export class Truffle extends Smartcontract {
     }
 
     console.log(`'${topic_string}' was registered in SeascapeSDS!`)
+  }
+
+  async sign(message: string): Promise<string> {
+    let message_hash = this.web3.utils.keccak256(message);
+
+    let signature = await this.web3.eth.sign(message_hash, this.deployer);
+
+    return signature;
   }
 }
