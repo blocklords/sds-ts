@@ -1,12 +1,16 @@
 "use strict";
 exports.__esModule = true;
-exports.BundleOptions = exports.Provider = exports.Smartcontract = exports.Request = exports.Gateway = exports.Wallet = exports.SmartcontractDataTypes = exports.SmartcontractData = void 0;
+exports.BundleOptions = exports.Provider = exports.Truffle = exports.Hardhat = exports.Smartcontract = exports.Request = exports.Gateway = exports.Wallet = exports.SmartcontractDataTypes = exports.SmartcontractData = void 0;
 var smartcontract_data_1 = require("./utils/smartcontract-data");
 exports.SmartcontractData = smartcontract_data_1["default"];
 var smartcontract_data_2 = require("./utils/smartcontract-data");
 exports.SmartcontractDataTypes = smartcontract_data_2.TYPES;
 var smartcontract_1 = require("./smartcontract");
 exports.Smartcontract = smartcontract_1.Smartcontract;
+var hardhat_1 = require("./hardhat");
+exports.Hardhat = hardhat_1.Hardhat;
+var truffle_1 = require("./truffle");
+exports.Truffle = truffle_1.Truffle;
 var bundle_options_1 = require("./bundle-options");
 exports.BundleOptions = bundle_options_1.BundleOptions;
 var Gateway = require("./sdk/gateway");

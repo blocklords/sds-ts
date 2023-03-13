@@ -1,19 +1,4 @@
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -51,46 +36,57 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.Gateway = void 0;
-var reply_1 = require("./message/reply");
-var env_1 = require("../env");
-var request_1 = require("./remote/request");
-/**
- * The class to interact with the remote Smartcontract Developer Gateway.
- */
-var Gateway = /** @class */ (function (_super) {
-    __extends(Gateway, _super);
+exports.RemoteRequest = void 0;
+var zmq = require("zeromq");
+var reply_1 = require("../message/reply");
+// The synchronous remote request to the SeascapeSDS.
+var RemoteRequest = /** @class */ (function () {
     // Init returns the Gateway connected socket.
-    function Gateway() {
-        var _this = this;
-        (0, env_1.verify_env)();
-        var url = process.env.SDS_GATEWAY_HOST;
-        _this = _super.call(this, url) || this;
+    function RemoteRequest(url) {
         /**
-        * Send the message to the Gateway. Wait for the reply
-        * @param msg The message to send to the remote SmartcontractDeveloper Gateway
-        * @returns Reply from the Gateway
-        */
-        _this.send = function (msg) {
+         * Send the message to the Gateway.
+         * @param msg The message to send to the remote SmartcontractDeveloper Gateway
+         * @returns Reply from the Gateway
+         */
+        this.request = function (msg) {
             return __awaiter(this, void 0, void 0, function () {
-                var reply;
+                var err_1, reply, resultBuffer, err_2;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
-                            if (!msg.is_signed()) {
-                                return [2 /*return*/, reply_1.Reply.fail("the message be signed", {})];
-                            }
-                            return [4 /*yield*/, this.request(msg)];
+                            _a.trys.push([0, 2, , 3]);
+                            return [4 /*yield*/, this.socket.send(msg.toString())];
                         case 1:
-                            reply = _a.sent();
-                            return [2 /*return*/, reply];
+                            _a.sent();
+                            return [3 /*break*/, 3];
+                        case 2:
+                            err_1 = _a.sent();
+                            return [2 /*return*/, reply_1.Reply.fail("Failed to send message to SDS Gateway: " + err_1.toString(), {})];
+                        case 3:
+                            _a.trys.push([3, 5, , 6]);
+                            return [4 /*yield*/, this.socket.receive()];
+                        case 4:
+                            resultBuffer = (_a.sent())[0];
+                            reply = reply_1.Reply.fromBuffer(resultBuffer);
+                            return [3 /*break*/, 6];
+                        case 5:
+                            err_2 = _a.sent();
+                            reply = reply_1.Reply.fail("Failed to receive message from SDS Gateway: " + err_2.toString(), {});
+                            return [3 /*break*/, 6];
+                        case 6: return [2 /*return*/, reply];
                     }
                 });
             });
         };
-        return _this;
+        this.socket = new zmq.Request({ linger: 0 });
+        try {
+            this.socket.connect(url);
+        }
+        catch (error) {
+            throw "error to connect to ".concat(url, ". error message: ").concat(error);
+        }
     }
-    return Gateway;
-}(request_1.RemoteRequest));
-exports.Gateway = Gateway;
-//# sourceMappingURL=gateway.js.map
+    return RemoteRequest;
+}());
+exports.RemoteRequest = RemoteRequest;
+//# sourceMappingURL=request.js.map

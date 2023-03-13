@@ -2,21 +2,21 @@
 exports.__esModule = true;
 exports.Request = void 0;
 var Request = /** @class */ (function () {
-    function Request(command, params) {
+    function Request(command, parameters) {
         this.command = command;
-        this.params = params;
+        this.parameters = parameters;
     }
     Request.prototype.toJSON = function () {
         return {
             command: this.command,
-            params: this.params
+            parameters: this.parameters
         };
     };
     Request.prototype.toString = function () {
         return JSON.stringify(this.toJSON(), null, 4);
     };
-    Request.Close = function (params) {
-        return new Request(Request.CLOSE, params);
+    Request.Close = function (parameters) {
+        return new Request(Request.CLOSE, parameters);
     };
     Request.fromBuffer = function (buffer) {
         var raw = buffer.toString();
@@ -27,10 +27,10 @@ var Request = /** @class */ (function () {
         catch (error) {
             return new Request(Request.NO_COMMAND, {});
         }
-        if (!obj.command || !obj.params) {
+        if (!obj.command || !obj.parameters) {
             return new Request(Request.NO_COMMAND, {});
         }
-        return new Request(obj.command, obj.params);
+        return new Request(obj.command, obj.parameters);
     };
     Request.CLOSE = 'close';
     Request.NO_COMMAND = '';
