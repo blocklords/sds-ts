@@ -1,9 +1,11 @@
 import { Topic } from "./common/topic";
 import { SmartcontractDeveloperRequest as MsgRequest } from "./sdk/message/smartcontract_developer_request";
 import { Smartcontract } from "./smartcontract";
-import { ethers } from "ethers";
-import { BundleOptions } from "./bundle-options"
+import { BundleOptions } from "./bundle-options";
+import { Reply as MsgReply } from "./message/reply";
 let fs = require('fs');
+import * as Account from "./sdk/account";
+import { ethers } from "ethers"
 
 /** @description Interact with SeascapeSDS using Hardhat Framework.
  * 
@@ -36,6 +38,33 @@ export class Hardhat extends Smartcontract {
     if (this.abi === false) {
       throw `error: can not find a smartcontract ABI. Make sure that smartcontrat name in .sol file is ${this.topic.name}`;
     }
+  }
+
+  /** Returns a curve keypair that's used for the backend developers.
+   * @param private_key is the smartcontract developer's account key
+   */
+  generate_key = async function(private_key: string): Promise<MsgReply> {
+    this.developer = new ethers.Wallet(private_key);
+
+    let deployer = await this.deployer.getAddress();
+
+    let message = new MsgRequest(deployer, 'generate_key', {});
+    let digest = message.digest();
+    let signature = await this.sign(digest);
+    message.set_signature(signature);
+
+    let reply = await this.gateway.send(message);
+    if (!reply.is_ok()) {
+      return reply;
+    }
+
+    var public_key = await Account.decrypt(this.developer, reply.parameters["public_key"]);
+    var secret_key = await Account.decrypt(this.developer, reply.parameters["secret_key"]);
+
+    reply.parameters["public_key"] = public_key.toString();
+    reply.parameters["secret_key"] = secret_key.toString();
+
+    return reply;
   }
 
   /** 
@@ -171,5 +200,5 @@ export class Hardhat extends Smartcontract {
       var signature = await this.deployer.signMessage(message_hash);
 
       return signature;
-  }
+    }
 }
