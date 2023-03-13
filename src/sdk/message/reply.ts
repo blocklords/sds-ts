@@ -1,12 +1,12 @@
 export class Reply {
     status: string;
     message: string;
-    params: any;
+    parameters: any;
     
-    constructor(status: string, message: string, params: any) {
+    constructor(status: string, message: string, parameters: any) {
         this.status = status,
         this.message = message;
-        this.params = params;
+        this.parameters = parameters;
     }
 
     is_ok() : boolean {
@@ -17,7 +17,7 @@ export class Reply {
         return {
             status: this.status,
             message: this.message,
-            params: this.params
+            parameters: this.parameters
         }
     }
 
@@ -25,24 +25,24 @@ export class Reply {
         return JSON.stringify(this.toJSON(), null, 4);
     }
 
-    static fail(message, params) {
-        if (params == undefined) {
-            params = {};
+    static fail(message, parameters) {
+        if (parameters == undefined) {
+            parameters = {};
         }
-        return new Reply(Reply.FAIL, message, params);
+        return new Reply(Reply.FAIL, message, parameters);
     }
 
-    static ok(params: any) {
-        if (params == undefined) {
-            params = {};
+    static ok(parameters: any) {
+        if (parameters == undefined) {
+            parameters = {};
         }
-        return new Reply(Reply.OK, '', params);
+        return new Reply(Reply.OK, '', parameters);
     }
 
     static fromBuffer(buffer: any) {
         let raw = buffer.toString();
         let obj = JSON.parse(raw);
-        return new Reply(obj.status, obj.message, obj.params);
+        return new Reply(obj.status, obj.message, obj.parameters);
     }
 
     static FAIL = 'fail';
