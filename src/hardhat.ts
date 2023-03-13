@@ -10,6 +10,10 @@ let fs = require('fs');
  * https://hardhat.org
  */
 export class Hardhat extends Smartcontract {
+  private deployer: ethers.Signer;
+  private contract: ethers.ContractFactory;
+  private abi: any;
+
   /**
    * Create a new smartcontract with the topic.
    * The topic's organization and project parameters are fetched from environment variables.
@@ -22,22 +26,25 @@ export class Hardhat extends Smartcontract {
    * @requires SDS_PROJECT_NAME environment variable. Example: `uniswap`.
    * @requires SDS_GATEWAY_HOST environment variable. Example: tcp://localhost:4001
    */
-  constructor(group: string, name: string) {
+  constructor(group: string, name: string, deployer: ethers.Signer, contract: ethers.ContractFactory) {
     super(group, name);
+
+    this.deployer = deployer;
+    this.contract = contract;
+
+    this.abi = this.load_abi_file(this.topic.name);
+    if (this.abi === false) {
+      throw `error: can not find a smartcontract ABI. Make sure that smartcontrat name in .sol file is ${this.topic.name}`;
+    }
   }
 
   /** 
    * @description Deploy smartcontract using hardhat framework and at the same time register it on SDS.
    */
-  async deploy(deployer: ethers.Signer, contract: ethers.ContractFactory, constructorArguments: Array<any>) {
-    this.topic.network_id = (await deployer.getChainId()).toString();
+  async deploy(constructorArguments: Array<any>) {
+    this.set_network_id((await this.deployer.getChainId()).toString());
 
-    let abi = await this.load_abi_file(this.topic.name);
-    if (abi === false) {
-      throw `error: can not find a smartcontract ABI. Make sure that smartcontrat name in .sol file is ${this.topic.name}`;
-    }
-
-    let deployed = await contract.connect(deployer).deploy(...constructorArguments);    /// Argument '1' means deploy in Test mode
+    let deployed = await this.contract.connect(this.deployer).deploy(...constructorArguments);    /// Argument '1' means deploy in Test mode
 
     console.log(`Smartcontract is deploying... Please wait...`);
     await deployed.deployed();
@@ -48,13 +55,17 @@ export class Hardhat extends Smartcontract {
     console.log(`'${this.topic.name}' address ${address}`);
     console.log(`'${this.topic.name}' txid    ${txid}`);
 
+    let deployer = await this.deployer.getAddress();
+
     let topic_string = this.topic.to_string(Topic.LEVEL_NAME);
-    let message = new MsgRequest('smartcontract_register', {
+    let message = new MsgRequest(deployer, 'smartcontract_register', {
       topic_string: topic_string,
       txid: txid,
-      abi: abi,
+      abi: this.abi,
     });
-    message = await message.sign(deployer);
+    let digest = message.digest();
+    let signature = await this.sign(digest);
+    message.set_signature(signature);
 
     console.log(`Sending 'register_smartcontract' command to SDS Gateway`);
     console.log(`The message to send to the user: `, message.toJSON());
@@ -68,7 +79,7 @@ export class Hardhat extends Smartcontract {
     console.log(reply);
   }
 
-  private load_abi_file = async (smartcontractName: string) => {
+  private load_abi_file = (smartcontractName: string) => {
     let contractPath = `./artifacts/contracts/${smartcontractName}.sol/${smartcontractName}.json`;
     let rawdata = fs.readFileSync(contractPath, 'utf-8');
     try {
@@ -89,26 +100,24 @@ export class Hardhat extends Smartcontract {
    * @param network_id NetworkID where contract is deployed
    * @param address Smartcontract address
    * @param txid contract creation transaction hash
-   * @param abi ABI directly compatible with JSON encoding
    */
-  async register(deployer: ethers.Signer, address: string, txid: string) {
-    this.topic.network_id = (await deployer.getChainId()).toString();
+  async register(address: string, txid: string) {
+    this.topic.network_id = (await this.deployer.getChainId()).toString();
 
     console.log(`'${this.topic.name}' address ${address}`);
     console.log(`'${this.topic.name}' txid    ${txid}`);
 
-    let abi = await this.load_abi_file(this.topic.name);
-    if (abi === false) {
-      throw `error: can not find a smartcontract ABI. Make sure that smartcontrat name in .sol file is ${this.topic.name}`;
-    }
+    let deployer = await this.deployer.getAddress();
 
     let topic_string = this.topic.to_string(Topic.LEVEL_NAME);
-    let message = new MsgRequest('smartcontract_register', {
+    let message = new MsgRequest(deployer, 'smartcontract_register', {
       topic_string: topic_string,
       txid: txid,
-      abi: abi,
+      abi: this.abi,
     });
-    message = await message.sign(deployer);
+    let digest = message.digest();
+    let signature = await this.sign(digest);
+    message.set_signature(signature);
 
     console.log(`Sending 'register_smartcontract' command to SDS Gateway`);
     
@@ -129,22 +138,22 @@ export class Hardhat extends Smartcontract {
    * @param method 
    * @param options 
    */
-    async enableBundling(smartcontractDeveloper: any, signerAddress: string, method: string, options: BundleOptions) {
-      if (!(smartcontractDeveloper instanceof ethers.Signer)) {
-        throw `the bundling not supported in truffle framework, yet!`;
-      }
-  
-      this.topic.network_id = (await smartcontractDeveloper.getChainId()).toString();
+    async enableBundling(signerAddress: string, method: string, options: BundleOptions) {
+      this.topic.network_id = (await this.deployer.getChainId()).toString();
       this.topic.method = method;
   
       let bundle = options.toJSON();
       
       bundle.topic_string = this.topic.to_string(Topic.LEVEL_FULL);
-      bundle.smartcontract_developer = await smartcontractDeveloper.getAddress();
+      bundle.smartcontract_developer = await this.deployer.getAddress();
       bundle.signer_address = signerAddress;
   
-      let message = new MsgRequest('smartcontract_register', bundle);
-      message = await message.sign(smartcontractDeveloper);
+      let deployer = await this.deployer.getAddress();
+
+      let message = new MsgRequest(deployer, 'smartcontract_register', bundle);
+      let digest = message.digest();
+      let signature = await this.sign(digest);
+      message.set_signature(signature);
   
       console.log(`Sending 'enable_bundling' command to SDS Gateway`);
       
@@ -156,4 +165,11 @@ export class Hardhat extends Smartcontract {
       console.log(`Bundling was enabled for '${bundle.topic_string}'.`);
       console.log(reply)
     }
+
+    async sign(message: string): Promise<string> {
+      var message_hash = ethers.utils.arrayify(ethers.utils.id(message));
+      var signature = await this.deployer.signMessage(message_hash);
+
+      return signature;
+  }
 }

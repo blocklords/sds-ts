@@ -12,8 +12,10 @@ export class SmartcontractDeveloperRequest extends Request {
     private signature: string;
     private nonce_timestamp: number;
     
-    constructor(command: string, params: any) {
+    constructor(address: string, command: string, params: any) {
         super(command, params);
+        this.address = address;
+        this.set_nonce();
     }
 
     /**
@@ -38,10 +40,21 @@ export class SmartcontractDeveloperRequest extends Request {
         this.nonce_timestamp = Math.round(new Date().getTime() * 1000000)
     }
 
-    async sign(developer: ethers.Signer|string, web3: any = undefined): Promise<SmartcontractDeveloperRequest> {
-        if (developer instanceof ethers.Signer) {
-            return this.ethers_sign(developer);
-        }
+    // serialize the message
+    // for signature generetion
+    public digest(): string {
+        let obj = this.toJSON()
+        delete obj["parameters"]["_signature"];
+        var message = stringify(obj);
+
+        return message;
+    }
+
+    public set_signature(signature: string) {
+        this.signature = signature;
+    }
+
+    async sign(developer: string, web3: any = undefined): Promise<SmartcontractDeveloperRequest> {
         this.address = developer;
         this.set_nonce();
 
@@ -57,22 +70,6 @@ export class SmartcontractDeveloperRequest extends Request {
         return this;
     }
 
-    async ethers_sign(developer: ethers.Signer): Promise<SmartcontractDeveloperRequest> {
-        this.address = await developer.getAddress();
-        this.set_nonce();
-
-        // stringify sorts the parameters in alphabet order.
-        var message = stringify(this.toJSON())
-        // for the signature we don't need the signature
-        delete message.parameters._signature;
-
-        var message_hash = ethers.utils.arrayify(ethers.utils.id(message));
-        var signature = await developer.signMessage(message_hash);
-
-        this.signature = signature;
-        return this;
-    }
-
     toString() : string {
         return JSON.stringify(this.toJSON(), null, 4);
     }
@@ -83,15 +80,14 @@ export class SmartcontractDeveloperRequest extends Request {
         try { 
             obj = JSON.parse(raw);
         } catch (error) {
-            return new SmartcontractDeveloperRequest(Request.NO_COMMAND, {});
+            return new SmartcontractDeveloperRequest("", Request.NO_COMMAND, {});
         }
 
         if (!obj.command || !obj.params) {
-            return new SmartcontractDeveloperRequest(Request.NO_COMMAND, {});
+            return new SmartcontractDeveloperRequest("", Request.NO_COMMAND, {});
         }
         
-        var request = new SmartcontractDeveloperRequest(obj.command, obj.params);
-        request.address = obj.address;
+        var request = new SmartcontractDeveloperRequest(obj.address, obj.command, obj.params);
         request.nonce_timestamp = obj.nonce_timestamp;
         request.signature = obj.signature;
 
