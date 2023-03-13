@@ -2,7 +2,7 @@ import { Topic } from "./common/topic";
 import { SmartcontractDeveloperRequest as MsgRequest } from "./sdk/message/smartcontract_developer_request";
 import { Smartcontract } from "./smartcontract";
 import { BundleOptions } from "./bundle-options";
-import { Reply as MsgReply } from "./message/reply";
+import { Reply as MsgReply } from "./sdk/message/reply";
 let fs = require('fs');
 import * as Account from "./sdk/account";
 import { ethers } from "ethers"
