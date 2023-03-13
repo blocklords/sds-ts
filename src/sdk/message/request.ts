@@ -1,16 +1,16 @@
 export class Request {
     command: string;
-    params; any;
+    parameters: object;
 
-    constructor(command: string, params: any) {
+    constructor(command: string, parameters: any) {
         this.command = command;
-        this.params = params;
+        this.parameters = parameters;
     }
 
     toJSON() : any {
         return {
             command: this.command,
-            params: this.params
+            parameters: this.parameters
         }
     }
 
@@ -18,8 +18,8 @@ export class Request {
         return JSON.stringify(this.toJSON(), null, 4);
     }
 
-    static Close(params: any) {
-        return new Request(Request.CLOSE, params);
+    static Close(parameters: any) {
+        return new Request(Request.CLOSE, parameters);
     }
 
     static fromBuffer(buffer: any) {
@@ -31,10 +31,10 @@ export class Request {
             return new Request(Request.NO_COMMAND, {});
         }
 
-        if (!obj.command || !obj.params) {
+        if (!obj.command || !obj.parameters) {
             return new Request(Request.NO_COMMAND, {});
         }
-        return new Request(obj.command, obj.params);
+        return new Request(obj.command, obj.parameters);
     }
 
     static CLOSE = 'close';
