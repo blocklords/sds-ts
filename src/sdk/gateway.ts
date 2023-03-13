@@ -18,30 +18,6 @@ export class Gateway extends RemoteRequest {
         super(url);
     }
 
-
-    /** Returns a curve keypair that's used for the backend developers.
-     * @param private_key is the smartcontract developer's account key
-     */
-    generate_key = async function(private_key: string): Promise<MsgReply> {
-        let developer = new ethers.Wallet(private_key);
-
-        let message = new MsgRequest('generate_key', {});
-        message = await message.sign(developer);
-
-        var gateway_reply = await this.request(message);
-        if (!gateway_reply.is_ok()) {
-            return gateway_reply;
-        }
-
-        var public_key = await Account.decrypt(developer, gateway_reply.parameters["public_key"]);
-        var secret_key = await Account.decrypt(developer, gateway_reply.parameters["secret_key"]);
-
-        gateway_reply.parameters["public_key"] = public_key.toString();
-        gateway_reply.parameters["secret_key"] = secret_key.toString();
-
-        return gateway_reply;
-    }
-
     /**
     * Send the message to the Gateway. Wait for the reply
     * @param msg The message to send to the remote SmartcontractDeveloper Gateway
