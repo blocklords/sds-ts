@@ -2,8 +2,6 @@ import { SmartcontractDeveloperRequest as MsgRequest } from "./message/smartcont
 import { Reply as MsgReply } from "./message/reply";
 import { verify_env } from "../env";
 import { RemoteRequest } from "./remote/request";
-import * as Account from "./account";
-import { ethers } from "ethers"
 
 /**
  * The class to interact with the remote Smartcontract Developer Gateway.
