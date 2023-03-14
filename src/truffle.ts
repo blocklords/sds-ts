@@ -58,7 +58,7 @@ export class Truffle extends Smartcontract {
     console.log(`'${this.topic.name}' txid    ${txid}`);
 
     let topic_string = this.topic.to_string(Topic.LEVEL_NAME);
-    let message = new MsgRequest(this.deployer, 'smartcontract_register', {
+    let message = new MsgRequest(this.deployer.options.from, 'smartcontract_register', {
       topic_string: topic_string,
       txid: txid,
       abi: abi,
@@ -95,7 +95,7 @@ export class Truffle extends Smartcontract {
       throw `failed to get the smartcontract abi`;
     }
     let topic_string = this.topic.to_string(Topic.LEVEL_NAME);
-    let message = new MsgRequest(this.deployer, 'smartcontract_register', {
+    let message = new MsgRequest(this.deployer.options.from, 'smartcontract_register', {
       topic_string: topic_string,
       txid: txid,
       abi: abi,
@@ -118,7 +118,7 @@ export class Truffle extends Smartcontract {
   async sign(message: string): Promise<string> {
     let message_hash = this.web3.utils.keccak256(message);
 
-    let signature = await this.web3.eth.sign(message_hash, this.deployer);
+    let signature = await this.web3.eth.sign(message_hash, this.deployer.options.from);
 
     return signature;
   }
