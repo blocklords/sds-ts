@@ -9,8 +9,8 @@ export class Request {
 
     toJSON() : any {
         return {
-            command: this.command,
-            parameters: this.parameters
+            "command": this.command,
+            "parameters": this.parameters
         }
     }
 
