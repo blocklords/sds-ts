@@ -83,9 +83,6 @@ export class Truffle extends Smartcontract {
    * Registers already deployed smartcontract on SeascapeSDS
    * @param address Smartcontract address
    * @param txid Smartcontract deployment transaction hash
-   * @param network_id The network id where the smartcontract was deployed on
-   * @param deployer_address of the address that deployed the smartcontract
-   * @param contract Smartcontract artifact
    */
   async register(address: string, txid: string) {
     this.topic.network_id = (await this.web3.eth.net.getId()).toString();
