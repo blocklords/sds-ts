@@ -8,8 +8,8 @@ var Request = /** @class */ (function () {
     }
     Request.prototype.toJSON = function () {
         return {
-            command: this.command,
-            parameters: this.parameters
+            "command": this.command,
+            "parameters": this.parameters
         };
     };
     Request.prototype.toString = function () {

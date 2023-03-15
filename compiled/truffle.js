@@ -121,7 +121,7 @@ var Truffle = /** @class */ (function (_super) {
                         console.log("'".concat(this.topic.name, "' address ").concat(address));
                         console.log("'".concat(this.topic.name, "' txid    ").concat(txid));
                         topic_string = this.topic.to_string(topic_1.Topic.LEVEL_NAME);
-                        message = new smartcontract_developer_request_1.SmartcontractDeveloperRequest(this.deployer, 'smartcontract_register', {
+                        message = new smartcontract_developer_request_1.SmartcontractDeveloperRequest(this.deployer.options.from, 'smartcontract_register', {
                             topic_string: topic_string,
                             txid: txid,
                             abi: abi
@@ -150,9 +150,6 @@ var Truffle = /** @class */ (function (_super) {
      * Registers already deployed smartcontract on SeascapeSDS
      * @param address Smartcontract address
      * @param txid Smartcontract deployment transaction hash
-     * @param network_id The network id where the smartcontract was deployed on
-     * @param deployer_address of the address that deployed the smartcontract
-     * @param contract Smartcontract artifact
      */
     Truffle.prototype.register = function (address, txid) {
         return __awaiter(this, void 0, void 0, function () {
@@ -171,7 +168,7 @@ var Truffle = /** @class */ (function (_super) {
                             throw "failed to get the smartcontract abi";
                         }
                         topic_string = this.topic.to_string(topic_1.Topic.LEVEL_NAME);
-                        message = new smartcontract_developer_request_1.SmartcontractDeveloperRequest(this.deployer, 'smartcontract_register', {
+                        message = new smartcontract_developer_request_1.SmartcontractDeveloperRequest(this.deployer.options.from, 'smartcontract_register', {
                             topic_string: topic_string,
                             txid: txid,
                             abi: abi
@@ -202,7 +199,7 @@ var Truffle = /** @class */ (function (_super) {
                 switch (_a.label) {
                     case 0:
                         message_hash = this.web3.utils.keccak256(message);
-                        return [4 /*yield*/, this.web3.eth.sign(message_hash, this.deployer)];
+                        return [4 /*yield*/, this.web3.eth.sign(message_hash, this.deployer.options.from)];
                     case 1:
                         signature = _a.sent();
                         return [2 /*return*/, signature];
